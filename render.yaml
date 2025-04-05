@@ -1,11 +1,20 @@
 services:
   - type: web
     name: real-estate-platform
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn real_estate_platform.wsgi:application
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn real_estate_platform.wsgi:application"
     envVars:
       - key: DEBUG
-        value: 'False'
-      - key: CLOUDINARY_URL
-        value: cloudinary://997257163374881:u5XPED3CQa2gd7PyHuEaw7BFsbY@dvptglfs2
+        value: False
+      - key: SECRET_KEY
+        value: your-secret-key
+      - key: ALLOWED_HOSTS
+        value: mansour.onrender.com
+      - key: CLOUD_NAME
+        value: dvptglfs2
+      - key: API_KEY
+        value: 997257163374881
+      - key: API_SECRET
+        value: u5XPED3CQa2gd7PyHuEaw7BFsbY
+    staticPublishPath: staticfiles
