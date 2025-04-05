@@ -1,15 +1,22 @@
-import os
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
-# 📁 المسار الأساسي للمشروع
+# تحميل متغيرات البيئة
+load_dotenv()
+
+# المسار الأساسي للمشروع
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# 🚨 مفاتيح الأمان
-SECRET_KEY = 'django-insecure-h&_nk6xo*znnud^saoj)l87tjt*=pa*o)8gzl*s5zrn*(p8+fk'
+# إعدادات الأمان
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-key')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = ['your-service-name.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
-# ✅ التطبيقات المثبتة
+# التطبيقات المثبتة
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -17,14 +24,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # تطبيقات المشروع
     'core',
     'widget_tweaks',
+
+    # Cloudinary
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
-# ✅ Middleware
+# الميدل وير
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # يدعم ملفات static
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -33,9 +46,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# إعدادات URLs
 ROOT_URLCONF = 'real_estate_platform.urls'
 
-# ✅ القوالب
+# إعدادات القوالب
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -52,9 +66,10 @@ TEMPLATES = [
     },
 ]
 
+# إعدادات WSGI
 WSGI_APPLICATION = 'real_estate_platform.wsgi.application'
 
-# ✅ قاعدة البيانات (SQLite مؤقتًا)
+# قاعدة البيانات (SQLite)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -62,43 +77,39 @@ DATABASES = {
     }
 }
 
-# ✅ كلمات المرور
+# تحقق كلمة المرور
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# 🌍 اللغة والمنطقة الزمنية
+# اللغة والتوقيت
 LANGUAGE_CODE = 'ar'
 TIME_ZONE = 'Asia/Riyadh'
 USE_I18N = True
 USE_TZ = True
 
-# ✅ المستخدم المخصص
+# نموذج المستخدم
 AUTH_USER_MODEL = 'core.CustomUser'
 
-# ✅ ملفات static
+# ملفات static
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# ✅ ملفات media (الصور)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# ملفات media عبر Cloudinary
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUD_NAME'),
+    'API_KEY': os.getenv('API_KEY'),
+    'API_SECRET': os.getenv('API_SECRET'),
+}
 
-# ✅ إعدادات تسجيل الدخول والخروج
+# روابط تسجيل الدخول والخروج
 LOGIN_URL = '/login/'
 LOGOUT_REDIRECT_URL = '/'
 
-# ✅ مفتاح الحقل الافتراضي
+# نوع المفتاح الأساسي الافتراضي
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
