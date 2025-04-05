@@ -5,9 +5,10 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn real_estate_platform.wsgi
     envVars:
-      - key: DJANGO_SETTINGS_MODULE
-        value: real_estate_platform.settings
-      - key: DEBUG
-        value: False
-      - key: ALLOWED_HOSTS
-        value: mansooour.onrender.com
+      - key: CLOUD_NAME
+        value: dvptglfs2
+      - key: API_KEY
+        value: 997257163374881
+      - key: API_SECRET
+        value: u5XPED3CQa2gd7PyHuEaw7BFsbY
+
