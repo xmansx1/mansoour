@@ -1,0 +1,25 @@
+{% extends 'core/base.html' %}
+
+{% block title %}لوحة التحكم{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm p-4">
+    <h3 class="mb-4 text-center">مرحبًا {{ user.username }}</h3>
+
+    <div class="list-group">
+        <a href="{% url 'my_properties' %}" class="list-group-item list-group-item-action">📋 عرض عقاراتي</a>
+        <a href="{% url 'add_property' %}" class="list-group-item list-group-item-action">➕ إضافة عقار جديد</a>
+        <a href="{% url 'my_executed_requests' %}" class="list-group-item list-group-item-action">📄 طلباتي المنفذة</a>
+        <a href="#" class="list-group-item list-group-item-action">🔒 تغيير كلمة المرور</a>
+
+        {% if user.user_type == 'admin' %}
+            <hr>
+            <a href="#" class="list-group-item list-group-item-action list-group-item-warning">👤 تسجيل وسيط جديد</a>
+            <a href="{% url 'admin_agents' %}" class="list-group-item list-group-item-action">👥 إدارة الوسطاء</a>
+            <a href="{% url 'admin_all_requests' %}" class="list-group-item list-group-item-action">📋 جميع الطلبات</a>
+            <a href="{% url 'admin_dashboard' %}" class="list-group-item list-group-item-action">📊 لوحة الإحصائيات</a>
+
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

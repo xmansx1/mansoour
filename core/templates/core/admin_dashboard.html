@@ -1,0 +1,64 @@
+{% extends 'core/base.html' %}
+{% block title %}لوحة تحكم الأدمن{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="text-center text-primary fw-bold mb-5">📊 لوحة تحكم الأدمن</h2>
+
+    <!-- الإحصائيات -->
+    <div class="row g-4 text-center">
+        <div class="col-md-3">
+            <div class="card border-success shadow-sm rounded-4">
+                <div class="card-body">
+                    <h6 class="text-muted">عدد الوسطاء</h6>
+                    <h3 class="text-success fw-bold">{{ total_agents }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-info shadow-sm rounded-4">
+                <div class="card-body">
+                    <h6 class="text-muted">عدد الطلبات</h6>
+                    <h3 class="text-info fw-bold">{{ total_requests }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-warning shadow-sm rounded-4">
+                <div class="card-body">
+                    <h6 class="text-muted">عدد العقارات</h6>
+                    <h3 class="text-warning fw-bold">{{ total_properties }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-danger shadow-sm rounded-4">
+                <div class="card-body">
+                    <h6 class="text-muted">أعلى سعر</h6>
+                    {% if highest_price %}
+                        <h4 class="text-danger fw-bold">{{ highest_price.price|floatformat:0 }} ريال</h4>
+                    {% else %}
+                        <p class="text-muted">لا يوجد</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الروابط الإدارية -->
+    <div class="text-center mt-5">
+        <a href="{% url 'agents_list' %}" class="btn btn-outline-primary btn-lg mx-2 px-4">
+            👥 إدارة المستخدمين
+        </a>
+        <a href="{% url 'admin_all_requests' %}" class="btn btn-outline-dark btn-lg mx-2 px-4">
+            📋 عرض الطلبات
+        </a>
+        <a href="{% url 'admin_add_agent' %}" class="btn btn-success btn-lg mx-2 px-4">
+            ➕ إضافة مستخدم
+        </a>
+    </div>
+</div>
+{% endblock %}

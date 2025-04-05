@@ -1,0 +1,71 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}تفاصيل العقار{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-7">
+            {% if images %}
+            <!-- 📷 Bootstrap Carousel -->
+            <div id="propertyCarousel" class="carousel slide rounded overflow-hidden mb-4" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    {% for image in images %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                            <img src="{{ image.image.url }}" class="d-block w-100" style="height: 400px; object-fit: cover;">
+                        </div>
+                    {% endfor %}
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#propertyCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#propertyCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+            </div>
+            {% elif property.image %}
+                <img src="{{ property.image.url }}" class="img-fluid rounded mb-4" style="height: 400px; object-fit: cover;">
+            {% else %}
+                <img src="{% static 'default.jpg' %}" class="img-fluid rounded mb-4" style="height: 400px; object-fit: cover;">
+            {% endif %}
+        </div>
+
+        <div class="col-md-5">
+            <h3 class="text-primary fw-bold mb-3">{{ property.get_property_type_display }} - {{ property.city }}</h3>
+
+            <ul class="list-group list-group-flush mb-4">
+                <li class="list-group-item"><i class="bi bi-geo-alt-fill"></i> الحي: {{ property.district }}</li>
+                <li class="list-group-item"><i class="bi bi-cash-coin"></i> السعر: {{ property.price|floatformat:0 }} ريال</li>
+                <li class="list-group-item"><i class="bi bi-calendar3"></i> عمر العقار: {{ property.age }} سنة</li>
+                <li class="list-group-item"><i class="bi bi-aspect-ratio-fill"></i> المساحة: {{ property.area }} متر مربع</li>
+                <li class="list-group-item"><i class="bi bi-house-fill"></i> نوع العرض: {{ property.get_offer_type_display }}</li>
+                <li class="list-group-item"><i class="bi bi-telephone-fill"></i> رقم التواصل: {{ property.phone }}</li>
+                {% if property.license_number %}
+                    <li class="list-group-item"><i class="bi bi-card-checklist"></i> رقم الترخيص: {{ property.license_number }}</li>
+                {% endif %}
+            </ul>
+
+            <!-- ✅ الوصف -->
+            <p class="fw-bold">الوصف:</p>
+            <div class="bg-light p-3 rounded border mb-4 text-muted" style="white-space: pre-wrap;">
+                {{ property.description|linebreaks }}
+            </div>
+
+            <!-- ✅ زر الاتصال -->
+            <a href="tel:{{ property.phone }}" class="btn btn-success btn-lg w-100 mb-3">
+                📞 اتصل الآن
+            </a>
+
+            <!-- ✅ زر واتساب برسالة احترافية -->
+            <a href="https://wa.me/966{{ property.phone|slice:'1:' }}?text={{ whatsapp_message }}"
+            target="_blank"
+            class="btn btn-success w-100 mt-2">
+            تواصل واتساب 📱
+         </a>
+         
+
+        </div>
+    </div>
+</div>
+{% endblock %}
