@@ -1,20 +1,13 @@
 services:
   - type: web
-    name: real-estate-platform
+    name: mansooour
     runtime: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn real_estate_platform.wsgi:application"
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn real_estate_platform.wsgi
     envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: real_estate_platform.settings
       - key: DEBUG
         value: False
-      - key: SECRET_KEY
-        value: your-secret-key
       - key: ALLOWED_HOSTS
-        value: mansour.onrender.com
-      - key: CLOUD_NAME
-        value: dvptglfs2
-      - key: API_KEY
-        value: 997257163374881
-      - key: API_SECRET
-        value: u5XPED3CQa2gd7PyHuEaw7BFsbY
-    staticPublishPath: staticfiles
+        value: mansooour.onrender.com
