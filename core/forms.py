@@ -11,10 +11,11 @@ class MultiFileInput(forms.ClearableFileInput):
 # 📷 نموذج طلب عميل
 class CustomerRequestForm(forms.ModelForm):
     images = forms.FileField(
-        widget=MultiFileInput(attrs={'multiple': True}),
-        required=False,
-        label='صور الطلب'
-    )
+    widget=forms.ClearableFileInput(attrs={'multiple': True}),
+    required=False,
+    label='صور العقار'
+)
+
 
     class Meta:
         model = CustomerRequest
@@ -40,8 +41,9 @@ class CustomerRequestForm(forms.ModelForm):
 
 # 🏠 نموذج إضافة عقار
 class PropertyForm(forms.ModelForm):
+    # حقل خارجي للصور (لا علاقة له بالموديل مباشرة)
     images = forms.FileField(
-        widget=MultiFileInput(attrs={'multiple': True}),
+        widget=forms.ClearableFileInput(attrs={'multiple': True}),
         required=False,
         label='صور إضافية'
     )
