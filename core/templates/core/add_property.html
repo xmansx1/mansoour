@@ -10,7 +10,9 @@
             <h4 class="text-center text-primary mb-4">🏠 إضافة عقار جديد</h4>
 
             <form method="POST" enctype="multipart/form-data">
+
                 {% csrf_token %}
+                {{ form.as_p }}
 
                 {# عرض الأخطاء #}
                 {% if form.errors %}
