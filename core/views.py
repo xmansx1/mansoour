@@ -168,24 +168,19 @@ def add_property_view(request):
     if request.method == 'POST':
         form = PropertyForm(request.POST, request.FILES)
         if form.is_valid():
-            property_obj = form.save(commit=False)
-            property_obj.owner = request.user
+            property = form.save(commit=False)
+            property.owner = request.user
+            property.save()
 
-            # ✅ حفظ الصورة الرئيسية إذا وُجدت
-            if 'image' in request.FILES:
-                property_obj.image = request.FILES['image']
+            # ✅ حفظ الصور المرفوعة وربطها بالعقار
+            images = request.FILES.getlist('images')
+            for img in images:
+                PropertyImage.objects.create(property=property, image=img)
 
-            property_obj.save()
-
-            # ✅ حفظ الصور المتعددة المرتبطة
-            for image_file in request.FILES.getlist('images'):
-                PropertyImage.objects.create(property=property_obj, image=image_file)
-
-            messages.success(request, "تم إضافة العقار بنجاح ✅")
-            return redirect('dashboard')
+            return redirect('dashboard')  # أو عدّل حسب اسم صفحة النجاح
     else:
         form = PropertyForm()
-    
+
     return render(request, 'core/add_property.html', {'form': form})
 
 

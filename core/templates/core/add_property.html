@@ -1,14 +1,14 @@
 {% extends "core/base.html" %}
-
 {% load widget_tweaks %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container py-4">
     <h2 class="mb-4">➕ إضافة عقار جديد</h2>
 
     <form method="POST" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
 
+        {# ✅ عرض الأخطاء إن وجدت #}
         {% if form.errors %}
             <div class="alert alert-danger">
                 <ul class="mb-0">
@@ -23,7 +23,7 @@
 
         <div class="row g-3">
             {% for field in form.visible_fields %}
-                {% if field.name != 'description' and field.name != 'images' and field.name != 'image' %}
+                {% if field.name != 'description' and field.name != 'images' %}
                     <div class="col-md-6">
                         <label class="form-label">{{ field.label }}</label>
                         {{ field|add_class:"form-control" }}
@@ -37,15 +37,9 @@
             </div>
 
             <div class="col-md-12">
-                <label class="form-label">الصورة الرئيسية</label>
-                {{ form.image|add_class:"form-control"|attr:"accept:image/*" }}
-                <small class="form-text text-muted">ستظهر هذه الصورة في عرض العقار</small>
-            </div>
-
-            <div class="col-md-12">
-                <label class="form-label">صور إضافية (يمكنك تحديد أكثر من صورة)</label>
-                {{ form.images|add_class:"form-control"|attr:"accept:image/*" }}
-                <small class="form-text text-muted">اختر صور واضحة</small>
+                <label class="form-label">صور العقار (يمكنك تحديد أكثر من صورة)</label>
+                <input type="file" name="images" multiple class="form-control" accept="image/*">
+                <small class="form-text text-muted">يفضل صور واضحة وعالية الجودة</small>
             </div>
         </div>
 
