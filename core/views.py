@@ -163,25 +163,31 @@ def dashboard_view(request):
         return redirect('admin_dashboard')
     return render(request, 'core/dashboard.html', {'user': request.user})
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Property, PropertyImage
+from .forms import PropertyForm
+
 @login_required
 def add_property_view(request):
     if request.method == 'POST':
         form = PropertyForm(request.POST, request.FILES)
         if form.is_valid():
-            property = form.save(commit=False)
-            property.owner = request.user
-            property.save()
+            property_obj = form.save(commit=False)
+            property_obj.owner = request.user
+            property_obj.save()
 
-            # ✅ حفظ الصور المرفوعة وربطها بالعقار
-            images = request.FILES.getlist('images')
-            for img in images:
-                PropertyImage.objects.create(property=property, image=img)
+            # احصل على كل الصور من request.FILES
+            images = request.FILES.getlist('images[]')
+            for image in images:
+                PropertyImage.objects.create(property=property_obj, image=image)
 
-            return redirect('dashboard')  # أو عدّل حسب اسم صفحة النجاح
+            return redirect('dashboard')
     else:
         form = PropertyForm()
 
     return render(request, 'core/add_property.html', {'form': form})
+
 
 
 
