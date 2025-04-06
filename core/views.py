@@ -172,15 +172,14 @@ def add_property_view(request):
             property_obj.owner = request.user
             property_obj.save()
 
-            # ✅ إضافة الصور المرتبطة بالعقار
-            images = request.FILES.getlist('images')
-            for image in images:
-                PropertyImage.objects.create(property=property_obj, image=image)
+            # رفع الصور المتعددة
+            for image_file in request.FILES.getlist('images'):
+                PropertyImage.objects.create(property=property_obj, image=image_file)
 
-            messages.success(request, '✅ تم إضافة العقار بنجاح.')
-            return redirect('dashboard')
+            return redirect('home')  # أو أي صفحة نجاح
     else:
         form = PropertyForm()
+    
     return render(request, 'core/add_property.html', {'form': form})
 
 
