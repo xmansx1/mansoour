@@ -11,7 +11,7 @@ class CustomerRequestForm(forms.ModelForm):
     images = forms.FileField(
         widget=MultiFileInput(attrs={'multiple': True}),
         required=False,
-        label='صور العقار'
+        label='صور العقار (محدث)'
     )
 
     class Meta:
@@ -150,3 +150,4 @@ class CustomUserUpdateForm(forms.ModelForm):
 class CustomLoginForm(AuthenticationForm):
     username = forms.CharField(label="اسم المستخدم")
     password = forms.CharField(widget=forms.PasswordInput, label="كلمة المرور")
+# تحديث يدوي لإجبار Git على ملاحظة التعديل
