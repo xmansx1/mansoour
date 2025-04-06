@@ -2,20 +2,17 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import CustomUser, CustomerRequest, Property
 
-
 # ✅ ويدجت يدعم رفع ملفات متعددة
-class MultiFileInput(forms.ClearableFileInput):
+class MultiFileInput(forms.FileInput):
     allow_multiple_selected = True
-
 
 # 📷 نموذج طلب عميل
 class CustomerRequestForm(forms.ModelForm):
     images = forms.FileField(
-    widget=forms.ClearableFileInput(attrs={'multiple': True}),
-    required=False,
-    label='صور العقار'
-)
-
+        widget=MultiFileInput(attrs={'multiple': True}),
+        required=False,
+        label='صور العقار'
+    )
 
     class Meta:
         model = CustomerRequest
@@ -38,12 +35,10 @@ class CustomerRequestForm(forms.ModelForm):
             'area_required': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
-
 # 🏠 نموذج إضافة عقار
 class PropertyForm(forms.ModelForm):
-    # حقل خارجي للصور (لا علاقة له بالموديل مباشرة)
     images = forms.FileField(
-        widget=forms.ClearableFileInput(attrs={'multiple': True}),
+        widget=MultiFileInput(attrs={'multiple': True}),
         required=False,
         label='صور إضافية'
     )
@@ -68,7 +63,6 @@ class PropertyForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'rows': 4}),
             'area': forms.NumberInput(attrs={'class': 'form-control'}),
         }
-
 
 # 👤 نموذج تسجيل مستخدم جديد
 class CustomUserCreationForm(UserCreationForm):
@@ -105,7 +99,6 @@ class CustomUserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
-
 
 # 👤 تعديل بيانات المستخدم
 class CustomUserUpdateForm(forms.ModelForm):
@@ -152,7 +145,6 @@ class CustomUserUpdateForm(forms.ModelForm):
         if commit:
             user.save()
         return user
-
 
 # 🔐 نموذج تسجيل الدخول
 class CustomLoginForm(AuthenticationForm):

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from cloudinary.models import CloudinaryField  # ✅ تم إضافته
 
 # ========== المستخدم المخصص ==========
 class CustomUser(AbstractUser):
@@ -25,7 +26,6 @@ class Property(models.Model):
         ('building', 'عمارة'),
         ('townhouse', 'تاون هاوس'),
         ('floor', 'دور'),
-
     ]
     OFFER_TYPE_CHOICES = [
         ('sale', 'بيع'),
@@ -40,7 +40,7 @@ class Property(models.Model):
     district = models.CharField(max_length=100)
     phone = models.CharField(max_length=20, verbose_name="رقم الجوال", null=True, blank=True)
     description = models.TextField()
-    image = models.ImageField(upload_to='property_images/', blank=True, null=True)  # الصورة الرئيسية
+    image = CloudinaryField('image', blank=True, null=True)  
     license_number = models.CharField(max_length=50, blank=True, null=True)
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='properties')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -49,11 +49,10 @@ class Property(models.Model):
     def __str__(self):
         return f"{self.get_property_type_display()} - {self.city} - {self.price}"
 
-# صور متعددة للعقار
+# ✅ صور متعددة للعقار (Cloudinary)
 class PropertyImage(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='property_images/')
-
+    image = CloudinaryField('image', blank=True, null=True)  
 
     def __str__(self):
         return f"صورة لـ {self.property}"
@@ -94,10 +93,10 @@ class CustomerRequest(models.Model):
     def __str__(self):
         return f"{self.full_name} - {self.get_request_type_display()}"
 
-# صور متعددة لطلبات العملاء
+# ✅ صور متعددة لطلبات العملاء (Cloudinary)
 class CustomerRequestImage(models.Model):
     request = models.ForeignKey(CustomerRequest, related_name='images', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='request_images/')
+    image = CloudinaryField('image', blank=True, null=True) # ✅
 
 # تنفيذ الطلبات
 class Execution(models.Model):
