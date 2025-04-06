@@ -172,7 +172,7 @@ def add_property_view(request):
             property_obj.owner = request.user
             property_obj.save()
 
-            # ✅ الصور داخل البلوك الصحيح
+            # ✅ إضافة الصور المرتبطة بالعقار
             images = request.FILES.getlist('images')
             for image in images:
                 PropertyImage.objects.create(property=property_obj, image=image)
@@ -182,6 +182,7 @@ def add_property_view(request):
     else:
         form = PropertyForm()
     return render(request, 'core/add_property.html', {'form': form})
+
 
 
 
