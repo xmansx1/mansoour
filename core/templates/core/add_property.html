@@ -10,14 +10,12 @@
             <h4 class="text-center text-primary mb-4">🏠 إضافة عقار جديد</h4>
 
             <form method="POST" enctype="multipart/form-data">
-
                 {% csrf_token %}
-                {{ form.as_p }}
 
-                {# عرض الأخطاء #}
+                {# ✅ عرض الأخطاء إن وجدت #}
                 {% if form.errors %}
                     <div class="alert alert-danger">
-                        <ul>
+                        <ul class="mb-0">
                             {% for field, errors in form.errors.items %}
                                 {% for error in errors %}
                                     <li><strong>{{ field }}:</strong> {{ error }}</li>
@@ -28,7 +26,6 @@
                 {% endif %}
 
                 <div class="row g-3">
-
                     <div class="col-md-6">
                         <label class="form-label">نوع العقار</label>
                         {{ form.property_type|add_class:"form-select" }}
@@ -69,6 +66,7 @@
                         <label class="form-label">رقم الترخيص</label>
                         {{ form.license_number|add_class:"form-control" }}
                     </div>
+
                     <div class="col-md-12">
                         <label class="form-label">تفاصيل إضافية</label>
                         {{ form.description|add_class:"form-control" }}
@@ -76,7 +74,7 @@
 
                     <div class="col-md-12">
                         <label class="form-label">صور العقار (يمكنك تحديد أكثر من صورة)</label>
-                        {{ form.images|add_class:"form-control" }}
+                        {{ form.images|add_class:"form-control"|attr:"accept:image/*" }}
                         <small class="form-text text-muted">يفضل صور واضحة وعالية الجودة</small>
                     </div>
                 </div>
