@@ -8,7 +8,6 @@
     <form method="POST" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
 
-        {# ✅ عرض الأخطاء إن وجدت #}
         {% if form.errors %}
             <div class="alert alert-danger">
                 <ul class="mb-0">
@@ -23,7 +22,7 @@
 
         <div class="row g-3">
             {% for field in form.visible_fields %}
-                {% if field.name not in ['description', 'images', 'image'] %}
+                {% if field.name != 'description' and field.name != 'images' and field.name != 'image' %}
                     <div class="col-md-6">
                         <label class="form-label">{{ field.label }}</label>
                         {{ field|add_class:"form-control" }}
@@ -43,9 +42,9 @@
             </div>
 
             <div class="col-md-12">
-                <label class="form-label">صور العقار (يمكنك تحديد أكثر من صورة)</label>
+                <label class="form-label">صور إضافية (يمكنك تحديد أكثر من صورة)</label>
                 {{ form.images|add_class:"form-control"|attr:"accept:image/*" }}
-                <small class="form-text text-muted">يفضل صور واضحة وعالية الجودة</small>
+                <small class="form-text text-muted">اختر صور واضحة</small>
             </div>
         </div>
 
