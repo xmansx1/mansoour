@@ -1,60 +1,59 @@
-
-{% extends 'core/base.html' %}
+{% extends 'base.html' %}
 {% load widget_tweaks %}
-
-{% block title %}إضافة عقار جديد{% endblock %}
 
 {% block content %}
 <div class="container py-5">
-    <div class="col-lg-10 offset-lg-1">
-        <div class="card shadow-sm p-4 rounded-4 border-0">
-            <h4 class="text-center text-primary mb-4 fw-bold">🏠 إضافة عقار جديد</h4>
+    <h2 class="mb-4">➕ إضافة عقار جديد</h2>
 
-            <form method="POST" enctype="multipart/form-data" novalidate>
-                {% csrf_token %}
+    <form method="POST" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
 
-                {# ✅ عرض الأخطاء إن وجدت #}
-                {% if form.errors %}
-                    <div class="alert alert-danger">
-                        <ul class="mb-0">
-                            {% for field, errors in form.errors.items %}
-                                {% for error in errors %}
-                                    <li><strong>{{ field }}:</strong> {{ error }}</li>
-                                {% endfor %}
-                            {% endfor %}
-                        </ul>
+        {# ✅ عرض الأخطاء إن وجدت #}
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li><strong>{{ field }}:</strong> {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <div class="row g-3">
+            {% for field in form.visible_fields %}
+                {% if field.name not in ['description', 'images', 'image'] %}
+                    <div class="col-md-6">
+                        <label class="form-label">{{ field.label }}</label>
+                        {{ field|add_class:"form-control" }}
                     </div>
                 {% endif %}
+            {% endfor %}
 
-                <div class="row g-3">
-                    {% for field in form.visible_fields %}
-                        {% if field.name != 'description' and field.name != 'images' %}
-                            <div class="col-md-6">
-                                <label class="form-label">{{ field.label }}</label>
-                                {{ field|add_class:"form-control" }}
-                            </div>
-                        {% endif %}
-                    {% endfor %}
+            <div class="col-md-12">
+                <label class="form-label">تفاصيل إضافية</label>
+                {{ form.description|add_class:"form-control"|attr:"rows:4" }}
+            </div>
 
-                    <div class="col-md-12">
-                        <label class="form-label">تفاصيل إضافية</label>
-                        {{ form.description|add_class:"form-control"|attr:"rows:4" }}
-                    </div>
+            <div class="col-md-12">
+                <label class="form-label">الصورة الرئيسية</label>
+                {{ form.image|add_class:"form-control"|attr:"accept:image/*" }}
+                <small class="form-text text-muted">ستظهر هذه الصورة في عرض العقار</small>
+            </div>
 
-                    <div class="col-md-12">
-                        <label class="form-label">صور العقار (يمكنك تحديد أكثر من صورة)</label>
-                        {{ form.images|add_class:"form-control"|attr:"accept:image/*" }}
-                        <small class="form-text text-muted">يفضل صور واضحة وعالية الجودة</small>
-                    </div>
-                </div>
-
-                <div class="d-grid mt-4">
-                    <button type="submit" class="btn btn-primary btn-lg shadow-sm">
-                        ➕ إضافة العقار
-                    </button>
-                </div>
-            </form>
+            <div class="col-md-12">
+                <label class="form-label">صور العقار (يمكنك تحديد أكثر من صورة)</label>
+                {{ form.images|add_class:"form-control"|attr:"accept:image/*" }}
+                <small class="form-text text-muted">يفضل صور واضحة وعالية الجودة</small>
+            </div>
         </div>
-    </div>
+
+        <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                ➕ إضافة العقار
+            </button>
+        </div>
+    </form>
 </div>
 {% endblock %}
