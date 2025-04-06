@@ -1,9 +1,19 @@
 from pathlib import Path
 import os
-from dotenv import load_dotenv
+
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+from dotenv import load_dotenv
+load_dotenv()
+
+import cloudinary
+
+cloudinary.config( 
+  cloud_name = os.getenv('CLOUD_NAME'), 
+  api_key = os.getenv('API_KEY'), 
+  api_secret = os.getenv('API_SECRET') 
+)
 
 # تحميل متغيرات البيئة
 load_dotenv()
