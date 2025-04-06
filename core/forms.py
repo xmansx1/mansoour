@@ -41,10 +41,11 @@ class CustomerRequestForm(forms.ModelForm):
 # 🏠 نموذج إضافة عقار (بدون الصور – الصور تُعالَج في views.py)
 class PropertyForm(forms.ModelForm):
     images = forms.FileField(
-    widget=forms.ClearableFileInput(attrs={'multiple': True}),
+    widget=forms.FileInput(attrs={'multiple': True}),
     required=False,
     label='صور إضافية'
 )
+
     class Meta:
         model = Property
         exclude = ['owner', 'created_at']
