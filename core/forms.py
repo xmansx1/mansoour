@@ -3,12 +3,12 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import CustomUser, CustomerRequest, Property
 
 
-# ✅ ويدجت يدعم رفع ملفات متعددة – مستخدم في فورم الطلب فقط
+# ✅ ويدجت يدعم رفع ملفات متعددة
 class MultiFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True
 
 
-# 📷 نموذج طلب عميل مع صور متعددة
+# 📷 نموذج طلب عميل
 class CustomerRequestForm(forms.ModelForm):
     images = forms.FileField(
         widget=MultiFileInput(attrs={'multiple': True}),
@@ -34,17 +34,17 @@ class CustomerRequestForm(forms.ModelForm):
         }
         widgets = {
             'details': forms.Textarea(attrs={'rows': 4}),
-             'area': forms.NumberInput(attrs={'class': 'form-control'}),
+            'area_required': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
 
-# 🏠 نموذج إضافة عقار (بدون الصور – الصور تُعالَج في views.py)
+# 🏠 نموذج إضافة عقار
 class PropertyForm(forms.ModelForm):
     images = forms.FileField(
-    widget=forms.FileInput(attrs={'multiple': True}),
-    required=False,
-    label='صور إضافية'
-)
+        widget=MultiFileInput(attrs={'multiple': True}),
+        required=False,
+        label='صور إضافية'
+    )
 
     class Meta:
         model = Property
@@ -64,18 +64,12 @@ class PropertyForm(forms.ModelForm):
         }
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
-            'area': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'أدخل المساحة بالمتر المربع'}),
+            'area': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
 
-
 # 👤 نموذج تسجيل مستخدم جديد
-from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser
-
 class CustomUserCreationForm(UserCreationForm):
-    # ✅ حقل جديد لتحديد نوع المستخدم
     USER_TYPES = [
         ('agent', 'وسيط'),
         ('admin', 'آدمن'),
@@ -102,29 +96,16 @@ class CustomUserCreationForm(UserCreationForm):
         }
 
     def save(self, commit=True):
-        # 🧠 أولًا ننشئ المستخدم بدون حفظه في قاعدة البيانات
         user = super().save(commit=False)
-
-        # ✅ نقرأ نوع المستخدم اللي اختاره في الفورم
         user_type = self.cleaned_data.get('user_type')
-
-        # ⚙️ نحدد الصلاحيات بناءً على نوعه
-        if user_type == 'admin':
-            user.is_staff = True
-            user.is_superuser = True
-        else:
-            user.is_staff = False
-            user.is_superuser = False
-
-        # ✅ حفظ المستخدم النهائي
+        user.is_staff = user_type == 'admin'
+        user.is_superuser = user_type == 'admin'
         if commit:
             user.save()
-
         return user
 
-from django import forms
-from .models import CustomUser
 
+# 👤 تعديل بيانات المستخدم
 class CustomUserUpdateForm(forms.ModelForm):
     USER_TYPES = [
         ('agent', 'وسيط'),
@@ -140,7 +121,6 @@ class CustomUserUpdateForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ['username', 'email', 'phone', 'city', 'district', 'license_number']
-
         labels = {
             'username': 'اسم المستخدم',
             'email': 'البريد الإلكتروني',
@@ -153,13 +133,8 @@ class CustomUserUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user_id = kwargs.pop('user_id', None)
         super().__init__(*args, **kwargs)
-
-        # ✅ تعبئة user_type من الصلاحيات الفعلية
         if self.instance:
-            if self.instance.is_superuser:
-                self.fields['user_type'].initial = 'admin'
-            else:
-                self.fields['user_type'].initial = 'agent'
+            self.fields['user_type'].initial = 'admin' if self.instance.is_superuser else 'agent'
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
@@ -170,14 +145,8 @@ class CustomUserUpdateForm(forms.ModelForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user_type = self.cleaned_data.get('user_type')
-
-        if user_type == 'admin':
-            user.is_staff = True
-            user.is_superuser = True
-        else:
-            user.is_staff = False
-            user.is_superuser = False
-
+        user.is_staff = user_type == 'admin'
+        user.is_superuser = user_type == 'admin'
         if commit:
             user.save()
         return user
