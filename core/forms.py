@@ -9,9 +9,6 @@ class MultiFileInput(forms.ClearableFileInput):
 
 
 # 📷 نموذج طلب عميل (بدون الصور داخل الـ form)
-from django import forms
-from .models import CustomerRequest
-
 class CustomerRequestForm(forms.ModelForm):
     class Meta:
         model = CustomerRequest
