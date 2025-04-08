@@ -160,10 +160,12 @@ def add_property_view(request):
             property_obj.save()
             for image in request.FILES.getlist('images'):
                 PropertyImage.objects.create(property=property_obj, image=image)
+            messages.success(request, '✅ تم إضافة العقار بنجاح.')
             return redirect('dashboard')
     else:
         form = PropertyForm()
     return render(request, 'core/add_property.html', {'form': form})
+
 
 def add_customer_request_view(request):
     if request.method == 'POST':
