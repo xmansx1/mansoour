@@ -54,11 +54,7 @@ class CustomerRequestForm(forms.ModelForm):
 
 # 🏠 نموذج إضافة عقار
 class PropertyForm(forms.ModelForm):
-    images = forms.FileField(
-        widget=MultiFileInput(attrs={'multiple': True}),
-        required=False,
-        label='صور إضافية'
-    )
+ 
 
     class Meta:
         model = Property
