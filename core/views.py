@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from urllib.parse import quote
-
+from django.db.models import Count
 from .models import (
     Property, CustomUser, CustomerRequest, Execution,
     CustomerRequestImage, PropertyImage
@@ -12,6 +12,7 @@ from .forms import (
     CustomerRequestForm, PropertyForm,
     CustomUserCreationForm, CustomLoginForm, CustomUserUpdateForm
 )
+from django.contrib import messages
 
 # ===================================================
 # 📍 الصفحات العامة
@@ -150,6 +151,8 @@ def dashboard_view(request):
         return redirect('admin_dashboard')
     return render(request, 'core/dashboard.html', {'user': request.user})
 
+
+
 @login_required
 def add_property_view(request):
     if request.method == 'POST':
@@ -158,13 +161,22 @@ def add_property_view(request):
             property_obj = form.save(commit=False)
             property_obj.owner = request.user
             property_obj.save()
+
+            # حفظ الصور المتعددة
             for image in request.FILES.getlist('images'):
                 PropertyImage.objects.create(property=property_obj, image=image)
+
             messages.success(request, '✅ تم إضافة العقار بنجاح.')
+
+            # التوجيه حسب نوع المستخدم
+            if request.user.user_type == 'admin':
+                return redirect('admin_dashboard')
             return redirect('dashboard')
     else:
         form = PropertyForm()
+
     return render(request, 'core/add_property.html', {'form': form})
+
 
 
 def add_customer_request_view(request):
@@ -217,7 +229,22 @@ def my_executed_requests_view(request):
 # ✅ تنفيذ طلبات العملاء
 # ===================================================
 def is_agent(user):
-    return user.is_authenticated and user.user_type == 'agent'
+    return user.is_authenticated and user.user_type in ['agent', 'admin']
+
+@login_required
+@user_passes_test(is_agent)
+def reserve_customer_request(request, request_id):
+    customer_request = get_object_or_404(CustomerRequest, pk=request_id)
+    if customer_request.status == 'open':
+        customer_request.status = 'reserved'
+        customer_request.reserved_by = request.user
+        customer_request.save()
+        messages.success(request, f'✅ تم حجز الطلب بواسطة {request.user.username}')
+    else:
+        messages.warning(request, '⚠️ لا يمكن حجز هذا الطلب')
+    return redirect('customer_requests')
+
+
 
 @login_required
 @user_passes_test(is_agent)
@@ -277,19 +304,26 @@ def delete_agent_view(request, pk):
 
 @login_required
 @user_passes_test(is_admin)
+
 def admin_dashboard_view(request):
     total_agents = CustomUser.objects.filter(user_type='agent').count()
     total_requests = CustomerRequest.objects.count()
     total_properties = Property.objects.count()
     highest_price = Property.objects.order_by('-price').first()
+    all_properties = Property.objects.all().order_by('-created_at')
+
+    open_requests = CustomerRequest.objects.filter(status='open').order_by('-created_at')
 
     context = {
         'total_agents': total_agents,
         'total_requests': total_requests,
         'total_properties': total_properties,
         'highest_price': highest_price,
+        'open_requests': open_requests,
+        'all_properties': all_properties,
     }
     return render(request, 'core/admin_dashboard.html', context)
+
 
 @login_required
 @user_passes_test(is_admin)
@@ -327,4 +361,49 @@ def admin_delete_request_view(request, request_id):
         messages.success(request, 'تم حذف الطلب بنجاح.')
         return redirect('admin_all_requests')
     return render(request, 'core/admin_delete_request_confirm.html', {'request_obj': customer_request})
+
+
+@login_required
+@user_passes_test(is_agent)
+def cancel_reservation(request, request_id):
+    customer_request = get_object_or_404(CustomerRequest, pk=request_id)
+    
+    if customer_request.status == 'reserved' and customer_request.reserved_by == request.user:
+        customer_request.status = 'open'
+        customer_request.reserved_by = None
+        customer_request.save()
+        messages.success(request, '✅ تم إلغاء الحجز بنجاح.')
+    else:
+        messages.error(request, '❌ لا يمكنك إلغاء هذا الحجز.')
+    
+    return redirect('customer_requests')
+
+@login_required
+@user_passes_test(is_admin)
+def admin_edit_property(request, property_id):
+    property = get_object_or_404(Property, id=property_id)
+
+    if request.method == 'POST':
+        form = PropertyForm(request.POST, request.FILES, instance=property)
+        if form.is_valid():
+            form.save()
+            messages.success(request, '✅ تم تعديل العقار بنجاح')
+            return redirect('admin_dashboard')
+    else:
+        form = PropertyForm(instance=property)
+
+    return render(request, 'core/admin_edit_property.html', {'form': form, 'property': property})
+@login_required
+@user_passes_test(is_admin)
+def admin_delete_property(request, property_id):
+    property = get_object_or_404(Property, id=property_id)
+    property.delete()
+    messages.success(request, '🗑️ تم حذف العقار بنجاح')
+    return redirect('admin_dashboard')
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render, redirect
+from .forms import PropertyForm
+
+def is_admin(user):
+    return user.is_authenticated and user.user_type == 'admin'
 

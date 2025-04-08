@@ -25,7 +25,11 @@ urlpatterns = [
     path('dashboard/my-properties/<int:pk>/edit/', views.edit_property_view, name='edit_property'),
     path('dashboard/my-properties/<int:pk>/delete/', views.delete_property_view, name='delete_property'),
     path('dashboard/my-requests/', views.my_executed_requests_view, name='my_executed_requests'),
-
+    path('requests/<int:request_id>/reserve/', views.reserve_customer_request, name='reserve_request'),
+    path('requests/<int:request_id>/cancel-reservation/', views.cancel_reservation, name='cancel_reservation'),
+    path('admin-panel/properties/<int:property_id>/edit/', views.admin_edit_property, name='admin_edit_property'),
+    path('admin-panel/properties/<int:property_id>/delete/', views.admin_delete_property, name='admin_delete_property'),
+ 
     # 🛠️ لوحة تحكم الأدمن
     path('admin-panel/dashboard/', views.admin_dashboard_view, name='admin_dashboard'),
     path('admin-panel/agents/', views.agents_list_view, name='agents_list'),
@@ -35,6 +39,9 @@ urlpatterns = [
     path('admin-panel/requests/', views.all_requests_admin_view, name='admin_all_requests'),
     path('admin-panel/requests/<int:request_id>/edit/', views.admin_edit_request_view, name='admin_edit_request'),
     path('admin-panel/requests/<int:request_id>/delete/', views.admin_delete_request_view, name='admin_delete_request'),
+    path('properties/add/', views.add_property_view, name='add_property'),
+
+
 ]
 
 if settings.DEBUG:

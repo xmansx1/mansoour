@@ -73,8 +73,17 @@ class PropertyForm(forms.ModelForm):
             'license_number': 'رقم الترخيص',
         }
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 4}),
+            'property_type': forms.Select(attrs={'class': 'form-select'}),
+            'offer_type': forms.Select(attrs={'class': 'form-select'}),
+            'age': forms.NumberInput(attrs={'class': 'form-control'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control'}),
+            'city': forms.TextInput(attrs={'class': 'form-control'}),
+            'district': forms.TextInput(attrs={'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'area': forms.NumberInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'license_number': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
 

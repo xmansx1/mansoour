@@ -37,24 +37,24 @@
     </form>
 
     <!-- ✅ زر إضافة الطلب -->
-    <div class="text-center mb-4">
-        <a href="{% url 'add-customer-request' %}" class="btn btn-success btn-lg rounded-pill shadow">
+    <div class="text-center mb-5">
+        <a href="{% url 'add-customer-request' %}" class="btn btn-success btn-lg rounded-pill shadow px-5 py-3">
             ➕ إضافة طلب عقاري
         </a>
     </div>
 
     <!-- 🏠 عقارات للبيع -->
-    <h2 class="text-center text-md-start mb-5 text-success fw-bold">🏠 عقارات للبيع</h2>
+    <h2 class="text-center text-md-start mb-5 fw-bold text-gradient-green">🏠 عقارات للبيع</h2>
 
     <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
         {% for property in for_sale %}
         <div class="col">
             <div class="card shadow-sm h-100 border-0 rounded-4 overflow-hidden">
                 {% if property.image %}
-                    <img src="{{ property.image.url }}" class="card-img-top"
+                    <img src="{{ property.image.url }}" class="card-img-top rounded-top"
                          style="height: 200px; object-fit: cover;">
                 {% else %}
-                    <img src="{% static 'default.jpg' %}" class="card-img-top"
+                    <img src="{% static 'default.jpg' %}" class="card-img-top rounded-top"
                          style="height: 200px; object-fit: cover;">
                 {% endif %}
                 <div class="card-body text-center">
@@ -81,17 +81,17 @@
     </div>
 
     <!-- 🏡 عقارات للإيجار -->
-    <h2 class="text-center text-md-start mb-5 text-info fw-bold">🏡 عقارات للإيجار</h2>
+    <h2 class="text-center text-md-start mb-5 fw-bold text-gradient-blue">🏡 عقارات للإيجار</h2>
 
     <div class="row row-cols-1 row-cols-md-3 g-4">
         {% for property in for_rent %}
         <div class="col">
             <div class="card shadow-sm h-100 border-0 rounded-4 overflow-hidden">
                 {% if property.image %}
-                    <img src="{{ property.image.url }}" class="card-img-top"
+                    <img src="{{ property.image.url }}" class="card-img-top rounded-top"
                          style="height: 200px; object-fit: cover;">
                 {% else %}
-                    <img src="{% static 'default.jpg' %}" class="card-img-top"
+                    <img src="{% static 'default.jpg' %}" class="card-img-top rounded-top"
                          style="height: 200px; object-fit: cover;">
                 {% endif %}
                 <div class="card-body text-center">

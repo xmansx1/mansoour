@@ -49,10 +49,15 @@
     </div>
 
     <!-- الروابط الإدارية -->
-    <div class="text-center mt-5">
+    <div class="text-center mt-5 mb-4">
         <a href="{% url 'agents_list' %}" class="btn btn-outline-primary btn-lg mx-2 px-4">
             👥 إدارة المستخدمين
         </a>
+        <a href="{% url 'add_property' %}" class="btn btn-primary btn-lg mx-2 px-4">
+            🏡 إضافة عقار جديد
+        </a>
+        
+        
         <a href="{% url 'admin_all_requests' %}" class="btn btn-outline-dark btn-lg mx-2 px-4">
             📋 عرض الطلبات
         </a>
@@ -60,5 +65,117 @@
             ➕ إضافة مستخدم
         </a>
     </div>
+
+    <!-- الطلبات المفتوحة -->
+    {% if open_requests %}
+    <hr class="my-4">
+    <h5 class="text-center mb-3 text-primary">📌 الطلبات المفتوحة</h5>
+
+    <div class="table-responsive">
+        <table class="table table-bordered text-center align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>الاسم</th>
+                    <th>المدينة</th>
+                    <th>الحي</th>
+                    <th>نوع الطلب</th>
+                    <th>نوع العقار</th>
+                    <th>أعلى سعر</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in open_requests %}
+                <tr>
+                    <td>{{ r.full_name }}</td>
+                    <td>{{ r.city }}</td>
+                    <td>{{ r.district }}</td>
+                    <td>{{ r.get_request_type_display }}</td>
+                    <td>{{ r.get_property_type_display }}</td>
+                    <td>{{ r.max_price|floatformat:0 }} ريال</td>
+                    <td>
+                        <a href="{% url 'execute_request' r.id %}" class="btn btn-sm btn-success mb-1">✅ تنفيذ</a>
+                        <a href="{% url 'reserve_request' r.id %}" class="btn btn-sm btn-warning mb-1">📥 حجز</a>
+                        <a href="{% url 'request_detail' r.id %}" class="btn btn-sm btn-outline-info mb-1">👁️ عرض</a>
+                        <a href="{% url 'admin_edit_request' r.id %}" class="btn btn-sm btn-outline-secondary mb-1">✏️ تعديل</a>
+                        
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
 </div>
+<hr class="my-5">
+<h5 class="text-center mb-4 text-primary">🏠 إدارة العقارات</h5>
+
+<div class="table-responsive">
+    <table class="table table-bordered text-center align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>المعرف</th>
+                <th> الوسيط العقاري</th>
+                <th>النوع</th>
+                <th>المدينة</th>
+                <th>الحي</th>
+                <th>السعر</th>
+                <th>الصورة</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for property in all_properties %}
+            <tr>
+                <td>{{ property.id }}</td>
+                <td>{{ property.owner.username }}</td>
+                <td>{{ property.get_property_type_display }}</td>
+                <td>{{ property.city }}</td>
+                <td>{{ property.district }}</td>
+                <td>{{ property.price|floatformat:0 }} ريال</td>
+                <td>
+                    {% if property.image %}
+                        <img src="{{ property.image.url }}" width="50" height="50" style="object-fit: cover; border-radius: 5px;">
+                    {% else %}
+                        <span class="text-muted">لا توجد</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'property_detail' property.id %}" class="btn btn-sm btn-outline-info mb-1">👁️ عرض</a>
+                    <a href="{% url 'admin_edit_property' property.id %}" class="btn btn-sm btn-outline-secondary mb-1">✏️ تعديل</a>
+                   <!-- زر فتح المودال -->
+<button class="btn btn-sm btn-danger mb-1" data-bs-toggle="modal" data-bs-target="#deleteModal{{ property.id }}">
+    🗑️ حذف
+</button>
+
+<!-- المودال نفسه -->
+<div class="modal fade" id="deleteModal{{ property.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ property.id }}" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deleteModalLabel{{ property.id }}">تأكيد الحذف</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+      </div>
+      <div class="modal-body">
+        هل أنت متأكد أنك تريد حذف العقار رقم <strong>{{ property.id }}</strong>؟
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+        <a href="{% url 'admin_delete_property' property.id %}" class="btn btn-danger">تأكيد الحذف</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-muted">لا توجد عقارات حالياً</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
 {% endblock %}

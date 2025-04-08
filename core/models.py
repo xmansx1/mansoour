@@ -58,6 +58,7 @@ class PropertyImage(models.Model):
         return f"صورة لـ {self.property}"
 
 # ========== الطلبات ==========
+# ... باقي الاستيرادات كما هي ...
 class CustomerRequest(models.Model):
     REQUEST_TYPE_CHOICES = [
         ('buy', 'شراء'),
@@ -72,6 +73,7 @@ class CustomerRequest(models.Model):
     ]
     STATUS_CHOICES = [
         ('open', 'مفتوح'),
+        ('reserved', 'محجوز'),
         ('executed', 'تم التنفيذ'),
     ]
 
@@ -87,11 +89,13 @@ class CustomerRequest(models.Model):
     payment_method = models.CharField(max_length=10, choices=PAYMENT_METHOD_CHOICES)
     license_number = models.CharField(max_length=50, blank=True, null=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='open')
+    reserved_by = models.ForeignKey('CustomUser', null=True, blank=True, on_delete=models.SET_NULL, related_name='reserved_requests')
     created_at = models.DateTimeField(auto_now_add=True)
     area = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return f"{self.full_name} - {self.get_request_type_display()}"
+
 
 # ✅ صور متعددة لطلبات العملاء (Cloudinary)
 class CustomerRequestImage(models.Model):
