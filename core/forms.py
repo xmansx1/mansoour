@@ -2,38 +2,58 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import CustomUser, CustomerRequest, Property
 
-# ✅ ويدجت يدعم رفع ملفات متعددة
-class MultiFileInput(forms.FileInput):
+
+# ✅ ويدجت مخصص يدعم رفع ملفات متعددة
+class MultiFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True
 
-# 📷 نموذج طلب عميل
-class CustomerRequestForm(forms.ModelForm):
-    images = forms.FileField(
-        widget=MultiFileInput(attrs={'multiple': True}),
-        required=False,
-        label='صور العقار (محدث)'
-    )
 
+# 📷 نموذج طلب عميل (بدون الصور داخل الـ form)
+from django import forms
+from .models import CustomerRequest
+
+class CustomerRequestForm(forms.ModelForm):
     class Meta:
         model = CustomerRequest
-        exclude = ['status', 'created_at']
+        fields = [
+            'full_name',
+            'phone',
+            'city',
+            'district',
+            'area_required',
+            'property_type',
+            'request_type',
+            'details',
+            'max_price',
+            'payment_method',
+            'license_number',
+        ]
         labels = {
             'full_name': 'الاسم الكامل',
             'phone': 'رقم الجوال',
             'city': 'المدينة',
             'district': 'الحي',
-            'area_required': 'المساحة المطلوبة',
+            'area_required': 'المساحة المطلوبة (م²)',
             'property_type': 'نوع العقار',
             'request_type': 'نوع الطلب',
             'details': 'تفاصيل إضافية',
-            'max_price': 'الحد الأعلى للسعر',
+            'max_price': 'الحد الأعلى للسعر (ريال)',
             'payment_method': 'طريقة الدفع',
-            'license_number': 'رقم الرخصة',
+            'license_number': 'رقم الرخصة (اختياري)',
         }
         widgets = {
-            'details': forms.Textarea(attrs={'rows': 4}),
-            'area_required': forms.NumberInput(attrs={'class': 'form-control'}),
+            'details': forms.Textarea(attrs={
+                'rows': 3,
+                'placeholder': 'مثلاً: قريب من المدارس والخدمات...'
+            }),
+            'area_required': forms.NumberInput(attrs={
+                'placeholder': 'مثلاً: 250'
+            }),
+            'max_price': forms.NumberInput(attrs={
+                'placeholder': 'مثلاً: 500000'
+            }),
         }
+
 
 # 🏠 نموذج إضافة عقار
 class PropertyForm(forms.ModelForm):
@@ -63,6 +83,7 @@ class PropertyForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'rows': 4}),
             'area': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
 
 # 👤 نموذج تسجيل مستخدم جديد
 class CustomUserCreationForm(UserCreationForm):
@@ -99,6 +120,7 @@ class CustomUserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
 
 # 👤 تعديل بيانات المستخدم
 class CustomUserUpdateForm(forms.ModelForm):
@@ -146,8 +168,8 @@ class CustomUserUpdateForm(forms.ModelForm):
             user.save()
         return user
 
+
 # 🔐 نموذج تسجيل الدخول
 class CustomLoginForm(AuthenticationForm):
     username = forms.CharField(label="اسم المستخدم")
     password = forms.CharField(widget=forms.PasswordInput, label="كلمة المرور")
-# تحديث يدوي لإجبار Git على ملاحظة التعديل

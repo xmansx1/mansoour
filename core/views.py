@@ -2,10 +2,16 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import Property, CustomUser, CustomerRequest, Execution, CustomerRequestImage
-from .forms import CustomerRequestForm, PropertyForm, CustomUserCreationForm, CustomLoginForm
-from .models import CustomerRequestImage 
-from .models import PropertyImage
+from urllib.parse import quote
+
+from .models import (
+    Property, CustomUser, CustomerRequest, Execution,
+    CustomerRequestImage, PropertyImage
+)
+from .forms import (
+    CustomerRequestForm, PropertyForm,
+    CustomUserCreationForm, CustomLoginForm, CustomUserUpdateForm
+)
 
 # ===================================================
 # 📍 الصفحات العامة
@@ -36,13 +42,10 @@ def home_view(request):
     }
     return render(request, 'core/home.html', context)
 
-from urllib.parse import quote
-
 def property_detail_view(request, pk):
     property = get_object_or_404(Property, pk=pk)
     images = PropertyImage.objects.filter(property=property)
 
-    # نص الرسالة
     msg = (
         f"مرحبًا، اطلعت على إعلان العقار التالي:\n\n"
         f"نوع العقار: {property.get_property_type_display()}\n"
@@ -52,10 +55,7 @@ def property_detail_view(request, pk):
         f"{request.build_absolute_uri()}\n\n"
         f"📩 تم إرسال هذا الطلب من منصة خطوة وسيط"
     )
-
-    # ترميز الرسالة لربط واتساب
     encoded_msg = quote(msg)
-
     context = {
         "property": property,
         "images": images,
@@ -63,34 +63,21 @@ def property_detail_view(request, pk):
     }
     return render(request, 'core/property_detail.html', context)
 
-
 # ===================================================
 # 🗓️ استقبال طلبات العملاء
 # ===================================================
-
-
-from .models import CustomerRequestImage
-
 def request_form_view(request):
     if request.method == 'POST':
-        form = CustomerRequestForm(request.POST, request.FILES)
+        form = CustomerRequestForm(request.POST)
         if form.is_valid():
             customer_request = form.save()
-
-            # حفظ الصور المتعددة
             for image in request.FILES.getlist('images'):
                 CustomerRequestImage.objects.create(request=customer_request, image=image)
-
             messages.success(request, '✅ تم إرسال الطلب بنجاح.')
             return redirect('request_success')
     else:
         form = CustomerRequestForm()
-
     return render(request, 'core/request_form.html', {'form': form})
-
-
-
-
 
 def request_success_view(request):
     return render(request, 'core/request_success.html')
@@ -163,11 +150,6 @@ def dashboard_view(request):
         return redirect('admin_dashboard')
     return render(request, 'core/dashboard.html', {'user': request.user})
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Property, PropertyImage
-from .forms import PropertyForm
-
 @login_required
 def add_property_view(request):
     if request.method == 'POST':
@@ -176,25 +158,25 @@ def add_property_view(request):
             property_obj = form.save(commit=False)
             property_obj.owner = request.user
             property_obj.save()
-
-            # احصل على كل الصور من request.FILES
-            images = request.FILES.getlist('images[]')
-            for image in images:
+            for image in request.FILES.getlist('images'):
                 PropertyImage.objects.create(property=property_obj, image=image)
-
             return redirect('dashboard')
     else:
         form = PropertyForm()
-
     return render(request, 'core/add_property.html', {'form': form})
 
-
-
-
-
-
-
-
+def add_customer_request_view(request):
+    if request.method == 'POST':
+        form = CustomerRequestForm(request.POST, request.FILES)
+        if form.is_valid():
+            customer_request = form.save()
+            for image in request.FILES.getlist('images'):
+                CustomerRequestImage.objects.create(request=customer_request, image=image)
+            messages.success(request, '✅ تم إرسال الطلب بنجاح.')
+            return redirect('request_success')
+    else:
+        form = CustomerRequestForm()
+    return render(request, 'core/request_form.html', {'form': form})
 
 
 @login_required
@@ -269,28 +251,17 @@ def all_requests_admin_view(request):
         requests = requests.filter(status=status)
     return render(request, 'core/admin_all_requests.html', {'requests': requests})
 
-from .forms import CustomUserUpdateForm  # تأكد من الاستيراد
- 
-
-from django.contrib import messages
-
 def edit_agent(request, pk):
     user = get_object_or_404(CustomUser, pk=pk)
-
     if request.method == 'POST':
         form = CustomUserUpdateForm(request.POST, instance=user, user_id=user.id)
         if form.is_valid():
             form.save()
             messages.success(request, "✅ تم حفظ التعديلات بنجاح.")
             return redirect('admin_edit_agent', pk=user.id)
-
     else:
         form = CustomUserUpdateForm(instance=user, user_id=user.id)
-
     return render(request, 'core/admin_edit_agent.html', {'form': form})
-
-
-
 
 @login_required
 @user_passes_test(is_admin)
@@ -299,7 +270,7 @@ def delete_agent_view(request, pk):
     if request.method == 'POST':
         agent.delete()
         messages.success(request, 'تم حذف الوسيط.')
-        return redirect('agents_list')  # ✅ هذا هو الاسم في urls.py
+        return redirect('agents_list')
     return render(request, 'core/admin_delete_agent_confirm.html', {'agent': agent})
 
 @login_required
@@ -354,3 +325,4 @@ def admin_delete_request_view(request, request_id):
         messages.success(request, 'تم حذف الطلب بنجاح.')
         return redirect('admin_all_requests')
     return render(request, 'core/admin_delete_request_confirm.html', {'request_obj': customer_request})
+

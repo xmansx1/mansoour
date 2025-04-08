@@ -12,7 +12,7 @@ urlpatterns = [
     path('requests/<int:request_id>/', views.customer_request_detail_view, name='request_detail'),
     path('requests/<int:request_id>/execute/', views.execute_customer_request, name='execute_request'),
     path('property/<int:pk>/', views.property_detail_view, name='property_detail'),
-
+    path('customer-request/add/', views.add_customer_request_view, name='add-customer-request'),
     # 🔐 تسجيل الدخول والخروج والتسجيل
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
