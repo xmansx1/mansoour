@@ -10,6 +10,7 @@
             {% csrf_token %}
             <div class="row">
                 <div class="col-md-6 mb-3">
+<<<<<<< HEAD
                     <label class="form-label">نوع العقار</label>
                     {{ form.property_type }}
                 </div>
@@ -84,6 +85,56 @@
             </div>
 
             <button type="submit" class="btn btn-success w-100 mt-3">💾 حفظ التعديلات</button>
+=======
+                    <label for="id_property_type" class="form-label">نوع العقار</label>
+                    {{ form.property_type }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="id_offer_type" class="form-label">نوع العرض</label>
+                    {{ form.offer_type }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="id_age" class="form-label">عمر العقار</label>
+                    {{ form.age }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="id_price" class="form-label">السعر</label>
+                    {{ form.price }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="id_city" class="form-label">المدينة</label>
+                    {{ form.city }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="id_district" class="form-label">الحي</label>
+                    {{ form.district }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="id_phone" class="form-label">رقم الجوال</label>
+                    {{ form.phone }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="id_license_number" class="form-label">رقم الترخيص</label>
+                    {{ form.license_number }}
+                </div>
+
+                <div class="col-md-12 mb-3">
+                    <label for="id_description" class="form-label">الوصف</label>
+                    {{ form.description }}
+                </div>
+
+                <div class="col-md-12 mb-4">
+                    <label for="id_image" class="form-label">الصورة</label>
+                    {{ form.image }}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">💾 حفظ التعديلات</button>
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
         </form>
     </div>
 </div>

@@ -2,8 +2,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 from . import views
+<<<<<<< HEAD
 from django.contrib.auth import views as auth_views
 
+=======
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
 
 urlpatterns = [
     # 🏠 صفحات عامة
@@ -15,11 +18,14 @@ urlpatterns = [
     path('requests/<int:request_id>/execute/', views.execute_customer_request, name='execute_request'),
     path('property/<int:pk>/', views.property_detail_view, name='property_detail'),
     path('customer-request/add/', views.add_customer_request_view, name='add-customer-request'),
+<<<<<<< HEAD
     path('property/<int:pk>/reserve/', views.reserve_property_view, name='reserve_property'),
     path('property/<int:pk>/execute/', views.execute_property_view, name='execute_property'),
     path('property/<int:pk>/cancel-reservation/', views.cancel_property_reservation, name='cancel_property_reservation'),
     path('property/<int:pk>/cancel-execution/', views.cancel_property_execution, name='cancel_property_execution'),
 
+=======
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
     # 🔐 تسجيل الدخول والخروج والتسجيل
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
@@ -36,9 +42,12 @@ urlpatterns = [
     path('requests/<int:request_id>/cancel-reservation/', views.cancel_reservation, name='cancel_reservation'),
     path('admin-panel/properties/<int:property_id>/edit/', views.admin_edit_property, name='admin_edit_property'),
     path('admin-panel/properties/<int:property_id>/delete/', views.admin_delete_property, name='admin_delete_property'),
+<<<<<<< HEAD
     path('accounts/password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),
     path('accounts/password_change/done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
 
+=======
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
  
     # 🛠️ لوحة تحكم الأدمن
     path('admin-panel/dashboard/', views.admin_dashboard_view, name='admin_dashboard'),

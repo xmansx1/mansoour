@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser, Property, CustomerRequest, Execution
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
     list_display = ('username', 'email', 'user_type', 'phone', 'city', 'district')
@@ -12,6 +19,7 @@ class CustomUserAdmin(UserAdmin):
         (None, {'fields': ('user_type', 'phone', 'city', 'district', 'license_number')}),
     )
 
+<<<<<<< HEAD
 
 from django.utils import timezone
 
@@ -89,6 +97,14 @@ class PropertyAdmin(admin.ModelAdmin):
         self.message_user(request, f"🔄 تم إعادة {count} عقار/عقارات إلى الحالة المتاحة.")
 
 
+=======
+class PropertyAdmin(admin.ModelAdmin):
+    list_display = ('property_type', 'offer_type', 'price', 'city', 'owner', 'created_at')
+    list_filter = ('property_type', 'offer_type', 'city')
+    search_fields = ('description', 'city', 'district')
+    date_hierarchy = 'created_at'
+    readonly_fields = ('created_at',)
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
 
 class CustomerRequestAdmin(admin.ModelAdmin):
     list_display = ('full_name', 'request_type', 'property_type', 'city', 'status', 'created_at')
@@ -97,14 +113,20 @@ class CustomerRequestAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     readonly_fields = ('created_at',)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
 class ExecutionAdmin(admin.ModelAdmin):
     list_display = ('customer_request', 'agent', 'executed_at')
     search_fields = ('agent__username', 'customer_request__full_name')
     date_hierarchy = 'executed_at'
     readonly_fields = ('executed_at',)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Property, PropertyAdmin)
 admin.site.register(CustomerRequest, CustomerRequestAdmin)

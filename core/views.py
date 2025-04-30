@@ -145,6 +145,7 @@ def logout_view(request):
 # ===================================================
 # 📊 لوحة تحكم المستخدم
 # ===================================================
+<<<<<<< HEAD
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from core.models import Property
@@ -161,6 +162,14 @@ def dashboard_view(request):
         'reserved_count': reserved_count,
         'executed_count': executed_count,
     })
+=======
+@login_required
+def dashboard_view(request):
+    if request.user.user_type == 'admin':
+        return redirect('admin_dashboard')
+    return render(request, 'core/dashboard.html', {'user': request.user})
+
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
 
 
 @login_required
@@ -211,11 +220,15 @@ def my_properties_view(request):
 @login_required
 def edit_property_view(request, pk):
     property = get_object_or_404(Property, pk=pk, owner=request.user)
+<<<<<<< HEAD
 
+=======
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
     if request.method == 'POST':
         form = PropertyForm(request.POST, request.FILES, instance=property)
         if form.is_valid():
             form.save()
+<<<<<<< HEAD
 
             # ✅ حفظ الصور الجديدة إذا تم رفعها
             for image in request.FILES.getlist('images'):
@@ -231,6 +244,13 @@ def edit_property_view(request, pk):
         'property': property
     })
 
+=======
+            messages.success(request, 'تم تعديل العقار بنجاح.')
+            return redirect('my_properties')
+    else:
+        form = PropertyForm(instance=property)
+    return render(request, 'core/edit_property.html', {'form': form, 'property': property})
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
 
 @login_required
 def delete_property_view(request, pk):
@@ -400,6 +420,7 @@ def cancel_reservation(request, request_id):
     return redirect('customer_requests')
 
 @login_required
+<<<<<<< HEAD
 def edit_property_view(request, pk):
     property = get_object_or_404(Property, pk=pk, owner=request.user)
 
@@ -423,10 +444,17 @@ def edit_property_view(request, pk):
         return redirect('edit_property', pk=property.pk)
 
     # ✅ تعديل بيانات العقار وإضافة صور جديدة
+=======
+@user_passes_test(is_admin)
+def admin_edit_property(request, property_id):
+    property = get_object_or_404(Property, id=property_id)
+
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
     if request.method == 'POST':
         form = PropertyForm(request.POST, request.FILES, instance=property)
         if form.is_valid():
             form.save()
+<<<<<<< HEAD
             for image in request.FILES.getlist('images'):
                 PropertyImage.objects.create(property=property, image=image)
             messages.success(request, '✅ تم تعديل العقار بنجاح.')
@@ -439,6 +467,14 @@ def edit_property_view(request, pk):
         'property': property
     })
 
+=======
+            messages.success(request, '✅ تم تعديل العقار بنجاح')
+            return redirect('admin_dashboard')
+    else:
+        form = PropertyForm(instance=property)
+
+    return render(request, 'core/admin_edit_property.html', {'form': form, 'property': property})
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
 @login_required
 @user_passes_test(is_admin)
 def admin_delete_property(request, property_id):
@@ -453,6 +489,7 @@ from .forms import PropertyForm
 def is_admin(user):
     return user.is_authenticated and user.user_type == 'admin'
 
+<<<<<<< HEAD
 @login_required
 @user_passes_test(lambda u: u.is_superuser or u.user_type == 'admin')
 def admin_edit_property(request, property_id):
@@ -559,3 +596,5 @@ def cancel_property_execution(request, pk):
 
 
 
+=======
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e

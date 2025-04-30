@@ -18,6 +18,7 @@ class CustomUser(AbstractUser):
         return self.username
 
 # ========== العقارات ==========
+<<<<<<< HEAD
 from django.db import models
 from django.conf import settings
 from cloudinary.models import CloudinaryField
@@ -42,17 +43,31 @@ class Property(models.Model):
 ]
 
 
+=======
+class Property(models.Model):
+    PROPERTY_TYPE_CHOICES = [
+        ('apartment', 'شقة'),
+        ('villa', 'فيلا'),
+        ('land', 'أرض'),
+        ('building', 'عمارة'),
+        ('townhouse', 'تاون هاوس'),
+        ('floor', 'دور'),
+    ]
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
     OFFER_TYPE_CHOICES = [
         ('sale', 'بيع'),
         ('rent', 'إيجار'),
     ]
 
+<<<<<<< HEAD
     PROPERTY_STATUS_CHOICES = [
         ('available', 'متاح'),
         ('reserved', 'محجوز'),
         ('executed', 'تم التنفيذ'),
     ]
 
+=======
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
     property_type = models.CharField(max_length=20, choices=PROPERTY_TYPE_CHOICES)
     offer_type = models.CharField(max_length=10, choices=OFFER_TYPE_CHOICES)
     age = models.PositiveIntegerField()
@@ -61,6 +76,7 @@ class Property(models.Model):
     district = models.CharField(max_length=100)
     phone = models.CharField(max_length=20, verbose_name="رقم الجوال", null=True, blank=True)
     description = models.TextField()
+<<<<<<< HEAD
     image = CloudinaryField('image', blank=True, null=True)
     license_number = models.CharField(max_length=50, blank=True, null=True)
     area = models.FloatField(null=True, blank=True)
@@ -113,12 +129,22 @@ class Property(models.Model):
         blank=True,
         verbose_name="وقت التنفيذ"
     )
+=======
+    image = CloudinaryField('image', blank=True, null=True)  
+    license_number = models.CharField(max_length=50, blank=True, null=True)
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='properties')
+    created_at = models.DateTimeField(auto_now_add=True)
+    area = models.FloatField(null=True, blank=True)
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
 
     def __str__(self):
         return f"{self.get_property_type_display()} - {self.city} - {self.price}"
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
 # ✅ صور متعددة للعقار (Cloudinary)
 class PropertyImage(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')

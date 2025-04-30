@@ -3,6 +3,7 @@
 
 {% block content %}
 <div class="container py-5">
+<<<<<<< HEAD
 
     <h2 class="text-center fw-bold text-primary mb-5">
         📊 لوحة تحكم الأدمن
@@ -44,6 +45,45 @@
                     <h6 class="mt-2">أعلى سعر</h6>
                     {% if highest_price %}
                         <h4 class="fw-bold text-danger">{{ highest_price.price|floatformat:0 }} ريال</h4>
+=======
+    <h2 class="text-center text-primary fw-bold mb-5">📊 لوحة تحكم الأدمن</h2>
+
+    <!-- الإحصائيات -->
+    <div class="row g-4 text-center">
+        <div class="col-md-3">
+            <div class="card border-success shadow-sm rounded-4">
+                <div class="card-body">
+                    <h6 class="text-muted">عدد الوسطاء</h6>
+                    <h3 class="text-success fw-bold">{{ total_agents }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-info shadow-sm rounded-4">
+                <div class="card-body">
+                    <h6 class="text-muted">عدد الطلبات</h6>
+                    <h3 class="text-info fw-bold">{{ total_requests }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-warning shadow-sm rounded-4">
+                <div class="card-body">
+                    <h6 class="text-muted">عدد العقارات</h6>
+                    <h3 class="text-warning fw-bold">{{ total_properties }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-danger shadow-sm rounded-4">
+                <div class="card-body">
+                    <h6 class="text-muted">أعلى سعر</h6>
+                    {% if highest_price %}
+                        <h4 class="text-danger fw-bold">{{ highest_price.price|floatformat:0 }} ريال</h4>
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
                     {% else %}
                         <p class="text-muted">لا يوجد</p>
                     {% endif %}
@@ -52,6 +92,7 @@
         </div>
     </div>
 
+<<<<<<< HEAD
     <!-- 🔗 روابط إدارية -->
     <div class="d-flex flex-wrap justify-content-center gap-3 my-4">
         <a href="{% url 'add_property' %}" class="btn btn-primary px-4">🏡 إضافة عقار جديد</a>
@@ -64,6 +105,31 @@
     {% if open_requests %}
     <hr class="my-4">
     <h5 class="text-center mb-3 text-primary">📌 الطلبات المفتوحة</h5>
+=======
+    <!-- الروابط الإدارية -->
+    <div class="text-center mt-5 mb-4">
+        <a href="{% url 'agents_list' %}" class="btn btn-outline-primary btn-lg mx-2 px-4">
+            👥 إدارة المستخدمين
+        </a>
+        <a href="{% url 'add_property' %}" class="btn btn-primary btn-lg mx-2 px-4">
+            🏡 إضافة عقار جديد
+        </a>
+        
+        
+        <a href="{% url 'admin_all_requests' %}" class="btn btn-outline-dark btn-lg mx-2 px-4">
+            📋 عرض الطلبات
+        </a>
+        <a href="{% url 'admin_add_agent' %}" class="btn btn-success btn-lg mx-2 px-4">
+            ➕ إضافة مستخدم
+        </a>
+    </div>
+
+    <!-- الطلبات المفتوحة -->
+    {% if open_requests %}
+    <hr class="my-4">
+    <h5 class="text-center mb-3 text-primary">📌 الطلبات المفتوحة</h5>
+
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
     <div class="table-responsive">
         <table class="table table-bordered text-center align-middle">
             <thead class="table-light">
@@ -87,12 +153,20 @@
                     <td>{{ r.get_property_type_display }}</td>
                     <td>{{ r.max_price|floatformat:0 }} ريال</td>
                     <td>
+<<<<<<< HEAD
                         <div class="d-grid gap-1">
                             <a href="{% url 'execute_request' r.id %}" class="btn btn-sm btn-success">✅ تنفيذ</a>
                             <a href="{% url 'reserve_request' r.id %}" class="btn btn-sm btn-warning text-dark">📥 حجز</a>
                             <a href="{% url 'request_detail' r.id %}" class="btn btn-sm btn-outline-info">👁️ عرض</a>
                             <a href="{% url 'admin_edit_request' r.id %}" class="btn btn-sm btn-outline-secondary">✏️ تعديل</a>
                         </div>
+=======
+                        <a href="{% url 'execute_request' r.id %}" class="btn btn-sm btn-success mb-1">✅ تنفيذ</a>
+                        <a href="{% url 'reserve_request' r.id %}" class="btn btn-sm btn-warning mb-1">📥 حجز</a>
+                        <a href="{% url 'request_detail' r.id %}" class="btn btn-sm btn-outline-info mb-1">👁️ عرض</a>
+                        <a href="{% url 'admin_edit_request' r.id %}" class="btn btn-sm btn-outline-secondary mb-1">✏️ تعديل</a>
+                        
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
                     </td>
                 </tr>
                 {% endfor %}
@@ -100,6 +174,7 @@
         </table>
     </div>
     {% endif %}
+<<<<<<< HEAD
 
     <!-- 🏠 إدارة العقارات -->
     <hr class="my-5">
@@ -205,4 +280,78 @@
         </table>
     </div>
 </div>
+=======
+</div>
+<hr class="my-5">
+<h5 class="text-center mb-4 text-primary">🏠 إدارة العقارات</h5>
+
+<div class="table-responsive">
+    <table class="table table-bordered text-center align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>المعرف</th>
+                <th> الوسيط العقاري</th>
+                <th>النوع</th>
+                <th>المدينة</th>
+                <th>الحي</th>
+                <th>السعر</th>
+                <th>الصورة</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for property in all_properties %}
+            <tr>
+                <td>{{ property.id }}</td>
+                <td>{{ property.owner.username }}</td>
+                <td>{{ property.get_property_type_display }}</td>
+                <td>{{ property.city }}</td>
+                <td>{{ property.district }}</td>
+                <td>{{ property.price|floatformat:0 }} ريال</td>
+                <td>
+                    {% if property.image %}
+                        <img src="{{ property.image.url }}" width="50" height="50" style="object-fit: cover; border-radius: 5px;">
+                    {% else %}
+                        <span class="text-muted">لا توجد</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'property_detail' property.id %}" class="btn btn-sm btn-outline-info mb-1">👁️ عرض</a>
+                    <a href="{% url 'admin_edit_property' property.id %}" class="btn btn-sm btn-outline-secondary mb-1">✏️ تعديل</a>
+                   <!-- زر فتح المودال -->
+<button class="btn btn-sm btn-danger mb-1" data-bs-toggle="modal" data-bs-target="#deleteModal{{ property.id }}">
+    🗑️ حذف
+</button>
+
+<!-- المودال نفسه -->
+<div class="modal fade" id="deleteModal{{ property.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ property.id }}" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deleteModalLabel{{ property.id }}">تأكيد الحذف</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+      </div>
+      <div class="modal-body">
+        هل أنت متأكد أنك تريد حذف العقار رقم <strong>{{ property.id }}</strong>؟
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+        <a href="{% url 'admin_delete_property' property.id %}" class="btn btn-danger">تأكيد الحذف</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-muted">لا توجد عقارات حالياً</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+>>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
 {% endblock %}
