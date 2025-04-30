@@ -1,0 +1,145 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}الصفحة الرئيسية - منصة العقارات{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <!-- ✅ شريط الفلاتر -->
+    <form method="get" class="row g-2 mb-5 justify-content-center">
+        <div class="col-md-3">
+            <input type="text" name="city" class="form-control"
+                   placeholder="ابحث عن مدينة مثل الرياض، جدة..." autocomplete="off"
+                   value="{{ request.GET.city }}">
+        </div>
+        <div class="col-md-3">
+            <select name="type" class="form-select">
+                <option value="">اختر نوع العقار</option>
+                <option value="apartment" {% if request.GET.type == "apartment" %}selected{% endif %}>شقة</option>
+                <option value="villa" {% if request.GET.type == "villa" %}selected{% endif %}>فيلا</option>
+                <option value="land" {% if request.GET.type == "land" %}selected{% endif %}>أرض</option>
+                <option value="building" {% if request.GET.type == "building" %}selected{% endif %}>عمارة</option>
+                <option value="townhouse" {% if request.GET.type == "townhouse" %}selected{% endif %}>تاون هاوس</option>
+                <option value="floor" {% if request.GET.type == "floor" %}selected{% endif %}>دور</option>
+                <option value="palace" {% if request.GET.type == "palace" %}selected{% endif %}>قصر</option>
+                <option value="chalet" {% if request.GET.type == "chalet" %}selected{% endif %}>استراحة</option>
+                <option value="farm" {% if request.GET.type == "farm" %}selected{% endif %}>مزرعة</option>
+            </select>
+            
+        </div>
+        <div class="col-md-3">
+            <select name="offer" class="form-select">
+                <option value="">اختر نوع العرض</option>
+                <option value="sale" {% if request.GET.offer == "sale" %}selected{% endif %}>بيع</option>
+                <option value="rent" {% if request.GET.offer == "rent" %}selected{% endif %}>إيجار</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-primary">🔍 تصفية</button>
+        </div>
+    </form>
+
+    <!-- ✅ زر إضافة الطلب -->
+    <div class="text-center mb-5">
+        <a href="{% url 'add-customer-request' %}" class="btn btn-success btn-lg rounded-pill shadow px-5 py-3">
+            ➕ إضافة طلب عقاري
+        </a>
+    </div>
+
+    <!-- 🏠 عقارات للبيع -->
+    <h2 class="text-center text-md-start mb-5 fw-bold text-gradient-green">🏠 عقارات للبيع</h2>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+        {% for property in for_sale %}
+            {% if property.status != 'executed' %}
+            <div class="col">
+                <div class="card shadow-sm h-100 border-0 rounded-4 overflow-hidden position-relative">
+                    {% if property.image %}
+                        <img src="{{ property.image.url }}" class="card-img-top rounded-top"
+                             style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'default.jpg' %}" class="card-img-top rounded-top"
+                             style="height: 200px; object-fit: cover;">
+                    {% endif %}
+
+                    <!-- 🔖 حالة العقار -->
+                    {% if property.status == 'reserved' %}
+                        <span class="badge bg-warning position-absolute top-0 start-0 m-2">محجوز</span>
+                    {% elif property.status == 'executed' %}
+                        <span class="badge bg-danger position-absolute top-0 start-0 m-2">غير متاح</span>
+                    {% endif %}
+
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-primary fw-bold">
+                            {{ property.get_property_type_display }} - {{ property.city }}
+                        </h5>
+                        <p class="mb-1"><i class="bi bi-geo-alt-fill"></i> {{ property.district }}</p>
+                        <p class="mb-1"><i class="bi bi-cash-coin"></i> {{ property.price|floatformat:0 }} ريال</p>
+                        <p class="mb-1"><i class="bi bi-calendar3"></i> عمر العقار: {{ property.age }} سنة</p>
+                        <p class="text-muted small text-truncate">
+                            {{ property.description|truncatechars:100 }}
+                        </p>
+                        <a href="{% url 'property_detail' property.id %}" class="btn btn-outline-primary mt-2">
+                            👁️ تفاصيل العقار
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% empty %}
+        <div class="col text-center">
+            <p class="text-muted">لا توجد عقارات متاحة حالياً للبيع</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 🏡 عقارات للإيجار -->
+    <h2 class="text-center text-md-start mb-5 fw-bold text-gradient-blue">🏡 عقارات للإيجار</h2>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for property in for_rent %}
+            {% if property.status != 'executed' %}
+            <div class="col">
+                <div class="card shadow-sm h-100 border-0 rounded-4 overflow-hidden position-relative">
+                    {% if property.image %}
+                        <img src="{{ property.image.url }}" class="card-img-top rounded-top"
+                             style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'default.jpg' %}" class="card-img-top rounded-top"
+                             style="height: 200px; object-fit: cover;">
+                    {% endif %}
+
+                    <!-- 🔖 حالة العقار -->
+                    {% if property.status == 'reserved' %}
+                        <span class="badge bg-warning position-absolute top-0 start-0 m-2">محجوز</span>
+                    {% elif property.status == 'executed' %}
+                        <span class="badge bg-danger position-absolute top-0 start-0 m-2">غير متاح</span>
+                    {% endif %}
+
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-primary fw-bold">
+                            {{ property.get_property_type_display }} - {{ property.city }}
+                        </h5>
+                        <p class="mb-1"><i class="bi bi-geo-alt-fill"></i> {{ property.district }}</p>
+                        <p class="mb-1"><i class="bi bi-cash-coin"></i> {{ property.price|floatformat:0 }} ريال</p>
+                        <p class="mb-1"><i class="bi bi-calendar3"></i> عمر العقار: {{ property.age }} سنة</p>
+                        <p class="text-muted small text-truncate">
+                            {{ property.description|truncatechars:100 }}
+                        </p>
+                        <a href="{% url 'property_detail' property.id %}" class="btn btn-outline-info mt-2">
+                            👁️ تفاصيل العقار
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% empty %}
+        <div class="col text-center">
+            <p class="text-muted">لا توجد عقارات متاحة حالياً للإيجار</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

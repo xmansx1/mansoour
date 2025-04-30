@@ -1,0 +1,16 @@
+{% extends 'core/base.html' %}
+
+{% block title %}حذف العقار{% endblock %}
+
+{% block content %}
+<div class="col-md-6 offset-md-3">
+    <div class="card shadow-sm p-4 text-center">
+        <h5 class="mb-3">هل أنت متأكد من حذف هذا العقار؟</h5>
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">نعم، حذف</button>
+            <a href="{% url 'my_properties' %}" class="btn btn-secondary">إلغاء</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

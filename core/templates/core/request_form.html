@@ -1,0 +1,53 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}إضافة طلب عقاري{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <h2 class="text-center mb-4 text-primary fw-bold">➕ إضافة طلب عقاري</h2>
+
+    <form method="POST" enctype="multipart/form-data" class="bg-light p-4 rounded shadow-sm">
+        {% csrf_token %}
+
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <div class="row g-3">
+            {% for field in form.visible_fields %}
+                {% if field.name != 'images' %}
+                    <div class="col-md-6">
+                        <label class="form-label">{{ field.label }}</label>
+                        {{ field|add_class:"form-control" }}
+
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            <div class="col-md-12">
+                <label class="form-label">📷 صور الطلب (يمكنك اختيار أكثر من صورة)</label>
+                <input type="file" name="images" class="form-control" multiple>
+                <small class="form-text text-muted">يمكنك اختيار أكثر من صورة</small>
+            </div>
+        </div>
+
+        <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-primary btn-lg shadow">
+                📨 إرسال الطلب
+            </button>
+        </div>
+    </form>
+
+</div>
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends 'core/base.html' %}
+
+{% block title %}لوحة تحكم الوسيط{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <!-- 👋 الترحيب -->
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-primary">👋 مرحبًا {{ user.get_full_name|default:user.username }}</h2>
+        <p class="text-muted">لوحة التحكم الخاصة بك لإدارة العقارات والطلبات</p>
+    </div>
+
+    <!-- 🧮 مؤشرات إحصائية -->
+    <div class="row g-4 mb-5 text-center">
+        <div class="col-md-4">
+            <div class="card border-primary shadow-sm rounded-4">
+                <div class="card-body">
+                    <h6 class="text-muted">عدد العقارات</h6>
+                    <h3 class="text-primary fw-bold">{{ total_properties }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-warning shadow-sm rounded-4">
+                <div class="card-body">
+                    <h6 class="text-muted">العقارات المحجوزة</h6>
+                    <h3 class="text-warning fw-bold">{{ reserved_count }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-success shadow-sm rounded-4">
+                <div class="card-body">
+                    <h6 class="text-muted">العقارات المنفذة</h6>
+                    <h3 class="text-success fw-bold">{{ executed_count }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔗 روابط مختصرة -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+
+        <div class="col">
+            <a href="{% url 'my_properties' %}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 rounded-4 text-center hover-card h-100">
+                    <div class="card-body py-4">
+                        <h1 class="display-5 text-primary">📋</h1>
+                        <h5 class="fw-bold">عقاراتي</h5>
+                        <p class="text-muted small">استعراض وإدارة كل عقاراتك</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col">
+            <a href="{% url 'add_property' %}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 rounded-4 text-center hover-card h-100">
+                    <div class="card-body py-4">
+                        <h1 class="display-5 text-success">➕</h1>
+                        <h5 class="fw-bold">إضافة عقار</h5>
+                        <p class="text-muted small">قم بإضافة عقار جديد في ثوانٍ</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col">
+            <a href="{% url 'my_executed_requests' %}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 rounded-4 text-center hover-card h-100">
+                    <div class="card-body py-4">
+                        <h1 class="display-5 text-info">📄</h1>
+                        <h5 class="fw-bold">طلباتي المنفذة</h5>
+                        <p class="text-muted small">عرض الطلبات التي تم تنفيذها</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col">
+            <a href="{% url 'password_change' %}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 rounded-4 text-center hover-card h-100">
+                    <div class="card-body py-4">
+                        <h1 class="display-5 text-warning">🔒</h1>
+                        <h5 class="fw-bold">تغيير كلمة المرور</h5>
+                        <p class="text-muted small">قم بتحديث بيانات الدخول الخاصة بك</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        {% if user.user_type == 'admin' %}
+        <div class="col">
+            <a href="{% url 'admin_add_agent' %}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 rounded-4 text-center hover-card h-100">
+                    <div class="card-body py-4">
+                        <h1 class="display-5 text-secondary">👤</h1>
+                        <h5 class="fw-bold">إضافة وسيط</h5>
+                        <p class="text-muted small">تسجيل مستخدم جديد من نوع وسيط</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col">
+            <a href="{% url 'admin_agents' %}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 rounded-4 text-center hover-card h-100">
+                    <div class="card-body py-4">
+                        <h1 class="display-5 text-dark">👥</h1>
+                        <h5 class="fw-bold">إدارة الوسطاء</h5>
+                        <p class="text-muted small">عرض وتعديل جميع الوسطاء</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col">
+            <a href="{% url 'admin_all_requests' %}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 rounded-4 text-center hover-card h-100">
+                    <div class="card-body py-4">
+                        <h1 class="display-5 text-primary">📋</h1>
+                        <h5 class="fw-bold">كل الطلبات</h5>
+                        <p class="text-muted small">عرض طلبات العملاء والبحث فيها</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col">
+            <a href="{% url 'admin_dashboard' %}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 rounded-4 text-center hover-card h-100">
+                    <div class="card-body py-4">
+                        <h1 class="display-5 text-danger">📊</h1>
+                        <h5 class="fw-bold">لوحة الإحصائيات</h5>
+                        <p class="text-muted small">معلومات تحليلية حول المنصة</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- تنسيق تحريكي للبطاقات -->
+<style>
+.hover-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 15px rgba(0,0,0,0.15);
+}
+</style>
+{% endblock %}

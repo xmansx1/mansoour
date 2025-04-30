@@ -1,0 +1,97 @@
+{% extends 'core/base.html' %}
+{% block title %}عقاراتي{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="text-center fw-bold text-primary mb-4">📋 قائمة عقاراتي</h2>
+
+    <div class="table-responsive">
+        <table class="table table-bordered text-center align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>النوع</th>
+                    <th>المدينة</th>
+                    <th>الحي</th>
+                    <th>السعر</th>
+                    <th>الحالة</th>
+                    <th>محجوز بواسطة</th>
+                    <th>تاريخ الحجز</th>
+                    <th>تم التنفيذ بواسطة</th>
+                    <th>تاريخ التنفيذ</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for property in properties %}
+                <tr>
+                    <td>{{ property.get_property_type_display }}</td>
+                    <td>{{ property.city }}</td>
+                    <td>{{ property.district }}</td>
+                    <td>{{ property.price|floatformat:0 }} ريال</td>
+                    <td>
+                        {% if property.status == 'available' %}
+                            <span class="badge bg-success">متاح</span>
+                        {% elif property.status == 'reserved' %}
+                            <span class="badge bg-warning text-dark">محجوز</span>
+                        {% elif property.status == 'executed' %}
+                            <span class="badge bg-danger">تم التنفيذ</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if property.reserved_by %}
+                            {{ property.reserved_by.get_full_name|default:property.reserved_by.username }}
+                        {% else %}<span class="text-muted">-</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if property.reserved_at %}
+                            {{ property.reserved_at|date:"Y/m/d H:i" }}
+                        {% else %}<span class="text-muted">-</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if property.executed_by %}
+                            {{ property.executed_by.get_full_name|default:property.executed_by.username }}
+                        {% else %}<span class="text-muted">-</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if property.executed_at %}
+                            {{ property.executed_at|date:"Y/m/d H:i" }}
+                        {% else %}<span class="text-muted">-</span>{% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'property_detail' property.id %}" class="btn btn-sm btn-outline-info mb-1">👁️ عرض</a>
+                        <a href="{% url 'edit_property' property.id %}" class="btn btn-sm btn-outline-secondary mb-1">✏️ تعديل</a>
+                        <!-- زر حذف -->
+                        <button class="btn btn-sm btn-danger mb-1" data-bs-toggle="modal" data-bs-target="#deleteModal{{ property.id }}">
+                            🗑️ حذف
+                        </button>
+
+                        <!-- مودال تأكيد الحذف -->
+                        <div class="modal fade" id="deleteModal{{ property.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ property.id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-danger text-white">
+                                        <h5 class="modal-title" id="deleteModalLabel{{ property.id }}">تأكيد الحذف</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        هل أنت متأكد من حذف العقار رقم <strong>{{ property.id }}</strong>؟
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                                        <a href="{% url 'admin_delete_property' property.id %}" class="btn btn-danger">تأكيد الحذف</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="10" class="text-muted">لا توجد عقارات مسجلة بعد.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
