@@ -2,29 +2,13 @@
 {% block title %}تعديل العقار{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="card shadow-sm p-4">
-        <h3 class="text-center mb-4 text-primary">✏️ تعديل العقار رقم {{ property.id }}</h3>
-
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="row g-3">
-                {% for field in form %}
-                <div class="col-md-6">
-                    <label class="form-label">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.errors %}
-                        <div class="text-danger small">{{ field.errors }}</div>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            </div>
-
-            <div class="mt-4 text-center">
-                <button type="submit" class="btn btn-success px-4">💾 حفظ التعديلات</button>
-                <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary px-4">🔙 رجوع</a>
-            </div>
-        </form>
-    </div>
+<div class="container mt-4">
+    <h2 class="mb-4">✏️ تعديل العقار: {{ property }}</h2>
+    <form method="POST" enctype="multipart/form-data" class="needs-validation">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">حفظ التعديلات</button>
+        <a href="{% url 'admin_properties_list' %}" class="btn btn-secondary">إلغاء</a>
+    </form>
 </div>
 {% endblock %}

@@ -1,9 +1,11 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}منصة العقارات{% endblock %}</title>
+    <title>{% block title %}{{ site_settings.site_name|default:"منصة العقارات" }}{% endblock %}</title>
 
     <!-- Bootstrap RTL -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
@@ -13,6 +15,9 @@
 
     <!-- Google Fonts: Cairo -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+
 
     <style>
         body {
@@ -63,7 +68,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container">
-        <a class="navbar-brand" href="/">مكتب خطوة وسيط</a>
+        <a class="navbar-brand" href="/">{{ site_settings.site_name|default:"مكتب خطوة وسيط" }}</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarNav" aria-controls="navbarNav"
                 aria-expanded="false" aria-label="تبديل التنقل">
@@ -109,7 +114,18 @@
 
 <footer class="bg-dark text-white text-center py-3 mt-auto">
     <div class="container">
-        <p>جميع الحقوق محفوظة &copy; 2025 - مكتب خطوة وسيط</p>
+        <p>جميع الحقوق محفوظة &copy; {{ site_settings.site_name|default:"مكتب خطوة وسيط" }} - 2025</p>
+        <div>
+            {% if site_settings.twitter_url %}
+                <a href="{{ site_settings.twitter_url }}" class="text-white me-3"><i class="bi bi-twitter"></i></a>
+            {% endif %}
+            {% if site_settings.snapchat_url %}
+                <a href="{{ site_settings.snapchat_url }}" class="text-white me-3"><i class="bi bi-snapchat"></i></a>
+            {% endif %}
+            {% if site_settings.whatsapp_number %}
+                <a href="https://wa.me/{{ site_settings.whatsapp_number }}" class="text-white"><i class="bi bi-whatsapp"></i></a>
+            {% endif %}
+        </div>
     </div>
 </footer>
 

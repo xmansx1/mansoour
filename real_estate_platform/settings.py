@@ -1,56 +1,27 @@
 from pathlib import Path
 import os
-<<<<<<< HEAD
 from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
-
-# تحميل متغيرات البيئة من ملف .env
-load_dotenv()
-
-# إعدادات Cloudinary
-cloudinary.config( 
-  cloud_name=os.getenv('CLOUD_NAME'), 
-  api_key=os.getenv('API_KEY'), 
-  api_secret=os.getenv('API_SECRET')
-)
-
-=======
-
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
-from dotenv import load_dotenv
-load_dotenv()
-
-import cloudinary
-
-cloudinary.config( 
-  cloud_name = os.getenv('CLOUD_NAME'), 
-  api_key = os.getenv('API_KEY'), 
-  api_secret = os.getenv('API_SECRET') 
-)
 
 # تحميل متغيرات البيئة
 load_dotenv()
 
->>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
+# إعدادات Cloudinary
+cloudinary.config(
+    cloud_name=os.getenv('CLOUD_NAME'),
+    api_key=os.getenv('API_KEY'),
+    api_secret=os.getenv('API_SECRET')
+)
+
 # المسار الأساسي للمشروع
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # إعدادات الأمان
-<<<<<<< HEAD
 SECRET_KEY = os.getenv('SECRET_KEY', 'your-default-secret-key')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
-=======
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-key')
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = ['mansoour.onrender.com', '127.0.0.1', 'localhost']
-
-
->>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
 
 # التطبيقات المثبتة
 INSTALLED_APPS = [
@@ -60,17 +31,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-<<<<<<< HEAD
-    'core',
-    'widget_tweaks',
-=======
 
     # تطبيقات المشروع
     'core',
     'widget_tweaks',
 
     # Cloudinary
->>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
     'cloudinary',
     'cloudinary_storage',
 ]
@@ -94,7 +60,10 @@ ROOT_URLCONF = 'real_estate_platform.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [
+           os.path.join(BASE_DIR, 'templates'),
+           os.path.join(BASE_DIR, 'core', 'templates'),  # أضف هذا السطر
+],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -102,6 +71,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.site_settings',
             ],
         },
     },
@@ -140,7 +110,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# ملفات media عبر Cloudinary
+# إعدادات Cloudinary للملفات
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUD_NAME'),
     'API_KEY': os.getenv('API_KEY'),
@@ -149,10 +119,6 @@ CLOUDINARY_STORAGE = {
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-<<<<<<< HEAD
-=======
-
->>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
 # روابط تسجيل الدخول والخروج
 LOGIN_URL = '/login/'
 LOGOUT_REDIRECT_URL = '/'

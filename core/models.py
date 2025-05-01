@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from cloudinary.models import CloudinaryField  # ✅ تم إضافته
+from django.conf import settings
+from cloudinary.models import CloudinaryField
 
 # ========== المستخدم المخصص ==========
 class CustomUser(AbstractUser):
@@ -17,33 +18,8 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
 
+
 # ========== العقارات ==========
-<<<<<<< HEAD
-from django.db import models
-from django.conf import settings
-from cloudinary.models import CloudinaryField
-
-
-from django.db import models
-from django.conf import settings
-from cloudinary.models import CloudinaryField
-
-
-class Property(models.Model):
-    PROPERTY_TYPE_CHOICES = [
-    ('apartment', 'شقة'),
-    ('villa', 'فيلا'),
-    ('land', 'أرض'),
-    ('building', 'عمارة'),
-    ('townhouse', 'تاون هاوس'),
-    ('floor', 'دور'),
-    ('palace', 'قصر'),
-    ('chalet', 'استراحة'),
-    ('farm', 'مزرعة'),
-]
-
-
-=======
 class Property(models.Model):
     PROPERTY_TYPE_CHOICES = [
         ('apartment', 'شقة'),
@@ -52,22 +28,22 @@ class Property(models.Model):
         ('building', 'عمارة'),
         ('townhouse', 'تاون هاوس'),
         ('floor', 'دور'),
+        ('palace', 'قصر'),
+        ('chalet', 'استراحة'),
+        ('farm', 'مزرعة'),
     ]
->>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
+
     OFFER_TYPE_CHOICES = [
         ('sale', 'بيع'),
         ('rent', 'إيجار'),
     ]
 
-<<<<<<< HEAD
     PROPERTY_STATUS_CHOICES = [
         ('available', 'متاح'),
         ('reserved', 'محجوز'),
         ('executed', 'تم التنفيذ'),
     ]
 
-=======
->>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
     property_type = models.CharField(max_length=20, choices=PROPERTY_TYPE_CHOICES)
     offer_type = models.CharField(max_length=10, choices=OFFER_TYPE_CHOICES)
     age = models.PositiveIntegerField()
@@ -76,29 +52,24 @@ class Property(models.Model):
     district = models.CharField(max_length=100)
     phone = models.CharField(max_length=20, verbose_name="رقم الجوال", null=True, blank=True)
     description = models.TextField()
-<<<<<<< HEAD
     image = CloudinaryField('image', blank=True, null=True)
     license_number = models.CharField(max_length=50, blank=True, null=True)
     area = models.FloatField(null=True, blank=True)
 
-    # 💼 مالك العقار (الوسيط)
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='properties'
     )
 
-    # 🕒 وقت الإضافة
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # ✅ حالة العقار
     status = models.CharField(
         max_length=10,
         choices=PROPERTY_STATUS_CHOICES,
         default='available'
     )
 
-    # 👤 المستخدم الذي قام بالحجز
     reserved_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,
@@ -107,14 +78,8 @@ class Property(models.Model):
         related_name='reserved_properties',
         verbose_name="تم الحجز بواسطة"
     )
+    reserved_at = models.DateTimeField(null=True, blank=True, verbose_name="وقت الحجز")
 
-    reserved_at = models.DateTimeField(
-        null=True,
-        blank=True,
-        verbose_name="وقت الحجز"
-    )
-
-    # ✅ المستخدم الذي قام بالتنفيذ
     executed_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,
@@ -123,38 +88,22 @@ class Property(models.Model):
         related_name='executed_properties',
         verbose_name="تم التنفيذ بواسطة"
     )
-
-    executed_at = models.DateTimeField(
-        null=True,
-        blank=True,
-        verbose_name="وقت التنفيذ"
-    )
-=======
-    image = CloudinaryField('image', blank=True, null=True)  
-    license_number = models.CharField(max_length=50, blank=True, null=True)
-    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='properties')
-    created_at = models.DateTimeField(auto_now_add=True)
-    area = models.FloatField(null=True, blank=True)
->>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
+    executed_at = models.DateTimeField(null=True, blank=True, verbose_name="وقت التنفيذ")
 
     def __str__(self):
         return f"{self.get_property_type_display()} - {self.city} - {self.price}"
 
-<<<<<<< HEAD
 
-
-=======
->>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
-# ✅ صور متعددة للعقار (Cloudinary)
+# ✅ صور متعددة للعقار
 class PropertyImage(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')
-    image = CloudinaryField('image', blank=True, null=True)  
+    image = CloudinaryField('image', blank=True, null=True)
 
     def __str__(self):
         return f"صورة لـ {self.property}"
 
+
 # ========== الطلبات ==========
-# ... باقي الاستيرادات كما هي ...
 class CustomerRequest(models.Model):
     REQUEST_TYPE_CHOICES = [
         ('buy', 'شراء'),
@@ -185,7 +134,13 @@ class CustomerRequest(models.Model):
     payment_method = models.CharField(max_length=10, choices=PAYMENT_METHOD_CHOICES)
     license_number = models.CharField(max_length=50, blank=True, null=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='open')
-    reserved_by = models.ForeignKey('CustomUser', null=True, blank=True, on_delete=models.SET_NULL, related_name='reserved_requests')
+    reserved_by = models.ForeignKey(
+        CustomUser,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='reserved_requests'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     area = models.CharField(max_length=100, blank=True, null=True)
 
@@ -193,10 +148,11 @@ class CustomerRequest(models.Model):
         return f"{self.full_name} - {self.get_request_type_display()}"
 
 
-# ✅ صور متعددة لطلبات العملاء (Cloudinary)
+# ✅ صور متعددة لطلبات العملاء
 class CustomerRequestImage(models.Model):
     request = models.ForeignKey(CustomerRequest, related_name='images', on_delete=models.CASCADE)
-    image = CloudinaryField('image', blank=True, null=True) # ✅
+    image = CloudinaryField('image', blank=True, null=True)
+
 
 # تنفيذ الطلبات
 class Execution(models.Model):
@@ -206,3 +162,17 @@ class Execution(models.Model):
 
     def __str__(self):
         return f"تم التنفيذ بواسطة {self.agent.username} لطلب {self.customer_request.id}"
+
+
+class SiteSettings(models.Model):
+    site_name = models.CharField(max_length=100, default='مكتب خطوة وسيط')
+    twitter_url = models.URLField(blank=True, null=True)
+    snapchat_url = models.URLField(blank=True, null=True)
+    whatsapp_number = models.CharField(max_length=20, blank=True, null=True)
+
+    def __str__(self):
+        return "إعدادات الموقع"
+
+    class Meta:
+        verbose_name = "إعدادات الموقع"
+        verbose_name_plural = "إعدادات الموقع"

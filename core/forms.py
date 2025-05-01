@@ -58,7 +58,7 @@ class PropertyForm(forms.ModelForm):
 
     class Meta:
         model = Property
-        exclude = ['owner', 'created_at']
+        exclude = ['owner', 'created_at', 'status'] 
         labels = {
             'property_type': 'نوع العقار',
             'offer_type': 'نوع العرض',
@@ -175,3 +175,11 @@ class CustomUserUpdateForm(forms.ModelForm):
 class CustomLoginForm(AuthenticationForm):
     username = forms.CharField(label="اسم المستخدم")
     password = forms.CharField(widget=forms.PasswordInput, label="كلمة المرور")
+
+from django import forms
+from .models import SiteSettings
+
+class SiteSettingsForm(forms.ModelForm):
+    class Meta:
+        model = SiteSettings
+        fields = '__all__'

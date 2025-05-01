@@ -1,140 +1,100 @@
 {% extends 'core/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
 
 {% block title %}تعديل بيانات العقار{% endblock %}
 
 {% block content %}
-<div class="col-md-8 offset-md-2">
+<div class="container mt-5">
     <div class="card shadow-sm p-4">
-        <h4 class="mb-4 text-center text-warning">✏️ تعديل بيانات العقار</h4>
-        <form method="POST" enctype="multipart/form-data">
+        <h3 class="text-center text-warning mb-4">✏️ تعديل بيانات العقار</h3>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% if form.errors %}
+<div class="alert alert-danger">
+    <ul class="mb-0">
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+                <li><strong>{{ field|title }}:</strong> {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+        
+        <form method="POST" enctype="multipart/form-data" class="row g-3">
             {% csrf_token %}
-            <div class="row">
-                <div class="col-md-6 mb-3">
-<<<<<<< HEAD
-                    <label class="form-label">نوع العقار</label>
-                    {{ form.property_type }}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">نوع العرض</label>
-                    {{ form.offer_type }}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">عمر العقار</label>
-                    {{ form.age }}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">السعر</label>
-                    {{ form.price }}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">المدينة</label>
-                    {{ form.city }}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">الحي</label>
-                    {{ form.district }}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">رقم الجوال</label>
-                    {{ form.phone }}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">رقم الترخيص</label>
-                    {{ form.license_number }}
-                </div>
-                <div class="col-md-12 mb-3">
-                    <label class="form-label">الوصف</label>
-                    {{ form.description }}
-                </div>
-                <div class="col-md-12 mb-3">
-                    <label class="form-label">الصورة الرئيسية</label>
-                    {{ form.image }}
-                </div>
-                <div class="col-md-12 mb-3">
-                    <label class="form-label">📷 صور إضافية (اختر أكثر من صورة)</label>
-                    {{ form.images }}
-                </div>
 
-                {% if property.images.all %}
-                <div class="col-md-12 mb-4">
-                    <label class="form-label">📸 الصور الحالية:</label>
-                    <div class="d-flex flex-wrap gap-3">
-                        {% for img in property.images.all %}
-                        <div class="border p-2 text-center" style="width:130px;">
-                            <img src="{{ img.image.url }}" alt="صورة" class="img-fluid mb-2" style="max-height:100px;"><br>
-
-                            <!-- حذف الصورة -->
-                            <form method="POST" style="display:inline;">
-                                {% csrf_token %}
-                                <input type="hidden" name="delete_image_id" value="{{ img.id }}">
-                                <button type="submit" class="btn btn-sm btn-danger mb-1">🗑️ حذف</button>
-                            </form>
-
-                            <!-- استبدال الصورة -->
-                            <form method="POST" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                <input type="hidden" name="replace_image_id" value="{{ img.id }}">
-                                <input type="file" name="replace_image_file" accept="image/*" class="form-control form-control-sm mb-1">
-                                <button type="submit" class="btn btn-sm btn-warning">🔁 استبدال</button>
-                            </form>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
+            <div class="col-md-6">
+                <label class="form-label">نوع العرض</label>
+                {{ form.offer_type|add_class:"form-select" }}
             </div>
 
-            <button type="submit" class="btn btn-success w-100 mt-3">💾 حفظ التعديلات</button>
-=======
-                    <label for="id_property_type" class="form-label">نوع العقار</label>
-                    {{ form.property_type }}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="id_offer_type" class="form-label">نوع العرض</label>
-                    {{ form.offer_type }}
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label for="id_age" class="form-label">عمر العقار</label>
-                    {{ form.age }}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="id_price" class="form-label">السعر</label>
-                    {{ form.price }}
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label for="id_city" class="form-label">المدينة</label>
-                    {{ form.city }}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="id_district" class="form-label">الحي</label>
-                    {{ form.district }}
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label for="id_phone" class="form-label">رقم الجوال</label>
-                    {{ form.phone }}
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label for="id_license_number" class="form-label">رقم الترخيص</label>
-                    {{ form.license_number }}
-                </div>
-
-                <div class="col-md-12 mb-3">
-                    <label for="id_description" class="form-label">الوصف</label>
-                    {{ form.description }}
-                </div>
-
-                <div class="col-md-12 mb-4">
-                    <label for="id_image" class="form-label">الصورة</label>
-                    {{ form.image }}
-                </div>
+            <div class="col-md-6">
+                <label class="form-label">نوع العقار</label>
+                {{ form.property_type|add_class:"form-select" }}
             </div>
 
-            <button type="submit" class="btn btn-success w-100">💾 حفظ التعديلات</button>
->>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
+            <div class="col-md-6">
+                <label class="form-label">السعر</label>
+                {{ form.price|add_class:"form-control" }}
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">عمر العقار</label>
+                {{ form.age|add_class:"form-control" }}
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">المدينة</label>
+                {{ form.city|add_class:"form-control" }}
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">الحي</label>
+                {{ form.district|add_class:"form-control" }}
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">رقم الجوال</label>
+                {{ form.phone|add_class:"form-control" }}
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">رقم الترخيص</label>
+                {{ form.license_number|add_class:"form-control" }}
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">المساحة</label>
+                {{ form.area|add_class:"form-control" }}
+            </div>
+
+            <div class="col-12">
+                <label class="form-label">الوصف</label>
+                {{ form.description|add_class:"form-control" }}
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">الصورة الرئيسية</label>
+                {{ form.image|add_class:"form-control" }}
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">صور إضافية (اختر أكثر من صورة)</label>
+                <input type="file" name="images" multiple class="form-control">
+            </div>
+
+            <div class="col-12 text-center">
+                <button type="submit" class="btn btn-success w-100">
+                    💾 حفظ التعديلات
+                </button>
+            </div>
         </form>
     </div>
 </div>

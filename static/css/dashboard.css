@@ -1,0 +1,57 @@
+body {
+    background: linear-gradient(to bottom, #f1f4f9, #e0e4ec);
+    font-family: 'Cairo', sans-serif;
+    color: #333;
+}
+
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 15px;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+h1, h5 {
+    font-weight: bold;
+}
+
+.text-gradient-blue {
+    background: linear-gradient(to right, #007bff, #0056b3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.text-muted {
+    font-size: 0.95rem;
+    color: #666 !important;
+}
+
+.hover-card {
+    cursor: pointer;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    transition: all 0.2s ease-in-out;
+}
+
+.hover-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+}
+
+.display-6 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #343a40;
+}
+
+@media (max-width: 767px) {
+    .card-title {
+        font-size: 1rem;
+    }
+
+    .display-6 {
+        font-size: 2rem;
+    }
+}

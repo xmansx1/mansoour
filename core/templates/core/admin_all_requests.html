@@ -13,7 +13,8 @@
         <div class="col-md-4">
             <select name="status" class="form-select">
                 <option value="">📋 كل الحالات</option>
-                <option value="open" {% if request.GET.status == 'open' %}selected{% endif %}>🕓 مفتوح</option>
+                <option value="open" {% if request.GET.status == 'open' %}selected{% endif %}>🟡 مفتوح</option>
+                <option value="reserved" {% if request.GET.status == 'reserved' %}selected{% endif %}>🔵 محجوز</option>
                 <option value="executed" {% if request.GET.status == 'executed' %}selected{% endif %}>✅ تم التنفيذ</option>
             </select>
         </div>
@@ -45,10 +46,12 @@
                     <td>{{ r.get_property_type_display }}</td>
                     <td>{{ r.city }}</td>
                     <td>
-                        {% if r.status == 'executed' %}
-                            <span class="badge bg-success">✅ تم التنفيذ</span>
-                        {% else %}
-                            <span class="badge bg-warning text-dark">🕓 مفتوح</span>
+                        {% if r.status == 'open' %}
+                            <span class="badge bg-warning text-dark">🟡 مفتوح</span>
+                        {% elif r.status == 'reserved' %}
+                            <span class="badge bg-info text-dark">🔵 محجوز</span>
+                        {% elif r.status == 'executed' %}
+                            <span class="badge bg-success text-light">✅ تم التنفيذ</span>
                         {% endif %}
                     </td>
                     <td>

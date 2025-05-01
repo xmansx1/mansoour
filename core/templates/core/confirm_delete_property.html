@@ -1,0 +1,19 @@
+{% extends 'core/base.html' %}
+{% block title %}تأكيد الحذف{% endblock %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <h2 class="text-danger mb-4">⚠️ هل أنت متأكد من حذف هذا العقار؟</h2>
+
+    <div class="card p-4 shadow-sm mb-4">
+        <h5>{{ property }}</h5>
+        <p class="text-muted">هذا الإجراء لا يمكن التراجع عنه.</p>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">نعم، احذف</button>
+        <a href="{% if user.user_type == 'admin' %}{% url 'admin_properties_list' %}{% else %}{% url 'my_properties' %}{% endif %}" class="btn btn-secondary">إلغاء</a>
+    </form>
+</div>
+{% endblock %}

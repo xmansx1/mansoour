@@ -40,7 +40,6 @@
                 {{ property.get_property_type_display }} - {{ property.city }}
             </h3>
 
-<<<<<<< HEAD
             <!-- 🚩 حالة العقار -->
             {% if property.status == 'reserved' %}
                 <div class="alert alert-warning py-2 text-center">⚠️ العقار محجوز</div>
@@ -48,8 +47,6 @@
                 <div class="alert alert-danger py-2 text-center">🚫 العقار غير متاح (تم تنفيذه)</div>
             {% endif %}
 
-=======
->>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
             <ul class="list-group list-group-flush mb-4">
                 <li class="list-group-item"><i class="bi bi-geo-alt-fill"></i> الحي: {{ property.district }}</li>
                 <li class="list-group-item"><i class="bi bi-cash-coin"></i> السعر: {{ property.price|floatformat:0 }} ريال</li>
@@ -76,7 +73,6 @@
             <!-- 💬 زر واتساب -->
             <a href="https://wa.me/966{{ property.phone|slice:'1:' }}?text={{ whatsapp_message }}"
                target="_blank"
-<<<<<<< HEAD
                class="btn btn-outline-success w-100 mb-3">
                 تواصل عبر واتساب 📱
             </a>
@@ -104,11 +100,6 @@
                     </form>
                 {% endif %}
             {% endif %}
-=======
-               class="btn btn-outline-success w-100">
-                تواصل عبر واتساب 📱
-            </a>
->>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
         </div>
     </div>
 </div>

@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-<<<<<<< HEAD
+
 {% block title %}عقاراتي{% endblock %}
 
 {% block content %}
@@ -94,36 +94,5 @@
             </tbody>
         </table>
     </div>
-=======
-
-{% block title %}عقاراتي{% endblock %}
-
-{% block content %}
-<div class="col-lg-10 offset-lg-1">
-    <h3 class="text-center mb-4 text-success">📂 قائمة العقارات الخاصة بي</h3>
-
-    {% if properties %}
-        <div class="row">
-            {% for property in properties %}
-                <div class="col-md-6 mb-4">
-                    <div class="card shadow-sm h-100">
-                        {% if property.image %}
-                            <img src="{{ property.image.url }}" class="card-img-top" style="height: 220px; object-fit: cover;" alt="صورة العقار">
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title text-primary">{{ property.get_property_type_display }} - {{ property.city }}</h5>
-                            <p class="card-text"><strong>السعر:</strong> {{ property.price }} ريال</p>
-                            <p class="card-text"><strong>الحي:</strong> {{ property.district }}</p>
-                            <a href="{% url 'edit_property' property.pk %}" class="btn btn-sm btn-warning">✏️ تعديل</a>
-                            <a href="{% url 'delete_property' property.pk %}" class="btn btn-sm btn-danger">🗑️ حذف</a>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="alert alert-info text-center">لا توجد عقارات مضافة حاليًا.</div>
-    {% endif %}
->>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
 </div>
 {% endblock %}

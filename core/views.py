@@ -1,18 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.utils import timezone
+from django.db import transaction
 from urllib.parse import quote
-from django.db.models import Count
-from .models import (
-    Property, CustomUser, CustomerRequest, Execution,
-    CustomerRequestImage, PropertyImage
-)
-from .forms import (
-    CustomerRequestForm, PropertyForm,
-    CustomUserCreationForm, CustomLoginForm, CustomUserUpdateForm
-)
-from django.contrib import messages
+from .models import Property, PropertyImage, CustomerRequest, CustomerRequestImage, CustomUser, Execution
+from .forms import PropertyForm, CustomerRequestForm, CustomUserCreationForm, CustomLoginForm, CustomUserUpdateForm
+from django import forms
 
 # ===================================================
 # 📍 الصفحات العامة
@@ -57,23 +52,22 @@ def property_detail_view(request, pk):
         f"📩 تم إرسال هذا الطلب من منصة خطوة وسيط"
     )
     encoded_msg = quote(msg)
-    context = {
+    return render(request, 'core/property_detail.html', {
         "property": property,
         "images": images,
         "whatsapp_message": encoded_msg
-    }
-    return render(request, 'core/property_detail.html', context)
+    })
 
 # ===================================================
 # 🗓️ استقبال طلبات العملاء
 # ===================================================
 def request_form_view(request):
     if request.method == 'POST':
-        form = CustomerRequestForm(request.POST)
+        form = CustomerRequestForm(request.POST, request.FILES)
         if form.is_valid():
-            customer_request = form.save()
+            request_obj = form.save()
             for image in request.FILES.getlist('images'):
-                CustomerRequestImage.objects.create(request=customer_request, image=image)
+                CustomerRequestImage.objects.create(request=request_obj, image=image)
             messages.success(request, '✅ تم إرسال الطلب بنجاح.')
             return redirect('request_success')
     else:
@@ -97,13 +91,12 @@ def customer_requests_list(request):
     if request_type in ['buy', 'sell', 'rent', 'rent_out']:
         requests = requests.filter(request_type=request_type)
 
-    context = {
+    return render(request, 'core/customer_requests.html', {
         'requests': requests,
         'selected_city': city or '',
         'selected_district': district or '',
         'selected_type': request_type or '',
-    }
-    return render(request, 'core/customer_requests.html', context)
+    })
 
 @login_required
 def customer_request_detail_view(request, request_id):
@@ -131,8 +124,7 @@ def login_view(request):
     if request.method == 'POST':
         form = CustomLoginForm(data=request.POST)
         if form.is_valid():
-            user = form.get_user()
-            login(request, user)
+            login(request, form.get_user())
             return redirect('home')
     else:
         form = CustomLoginForm()
@@ -145,31 +137,65 @@ def logout_view(request):
 # ===================================================
 # 📊 لوحة تحكم المستخدم
 # ===================================================
-<<<<<<< HEAD
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from .models import Property, CustomerRequest, CustomUser  # تأكد من صحة الاستيراد
+
+from django.shortcuts import render
+from core.models import Property, CustomerRequest, CustomUser
+
+from django.shortcuts import render
+from core.models import Property, CustomerRequest, CustomUser
+
+from django.shortcuts import render
+from core.models import Property, CustomerRequest, CustomUser
+
+def dashboard_view(request):
+    context = {}
+
+    if request.user.is_authenticated:
+        if request.user.user_type == 'admin':
+            # إحصائيات عامة تشمل النظام بالكامل
+            context.update({
+                'total_agents': CustomUser.objects.filter(user_type='agent').count(),
+                'total_requests': CustomerRequest.objects.count(),
+                'total_properties': Property.objects.count(),
+
+                'total_rent_properties': Property.objects.filter(offer_type='rent').count(),
+                'total_sale_properties': Property.objects.filter(offer_type='sale').count(),
+
+                'executed_requests': CustomerRequest.objects.filter(status__iexact='executed').count(),
+                'reserved_requests': CustomerRequest.objects.filter(status__iexact='reserved').count(),
+                'open_requests': CustomerRequest.objects.filter(status__iexact='open'),
+
+                'highest_price': Property.objects.order_by('-price').first(),
+            })
+        else:
+            # إحصائيات خاصة بالمستخدم الحالي (الوسيط/العميل)
+            user_properties = Property.objects.filter(owner=request.user)
+            context.update({
+                'total_properties': user_properties.count(),
+                'reserved_count': user_properties.filter(status='reserved').count(),
+                'executed_count': user_properties.filter(status='executed').count(),
+            })
+
+    return render(request, 'core/dashboard.html', context)
+
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
 from core.models import Property
 
 @login_required
-def dashboard_view(request):
-    properties = Property.objects.filter(owner=request.user)
-    total_properties = properties.count()
-    reserved_count = properties.filter(status='reserved').count()
-    executed_count = properties.filter(status='executed').count()
+def admin_properties_list(request):
+    if request.user.user_type != 'admin':
+        return redirect('dashboard')
 
-    return render(request, 'core/dashboard.html', {
-        'total_properties': total_properties,
-        'reserved_count': reserved_count,
-        'executed_count': executed_count,
-    })
-=======
-@login_required
-def dashboard_view(request):
-    if request.user.user_type == 'admin':
-        return redirect('admin_dashboard')
-    return render(request, 'core/dashboard.html', {'user': request.user})
+    properties = Property.objects.all().order_by('-created_at')
+    return render(request, 'core/admin_properties_list.html', {'properties': properties})
 
->>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
+
+
+
 
 
 @login_required
@@ -177,26 +203,206 @@ def add_property_view(request):
     if request.method == 'POST':
         form = PropertyForm(request.POST, request.FILES)
         if form.is_valid():
-            property_obj = form.save(commit=False)
-            property_obj.owner = request.user
-            property_obj.save()
-
-            # حفظ الصور المتعددة
+            obj = form.save(commit=False)
+            obj.owner = request.user
+            obj.save()
             for image in request.FILES.getlist('images'):
-                PropertyImage.objects.create(property=property_obj, image=image)
-
+                PropertyImage.objects.create(property=obj, image=image)
             messages.success(request, '✅ تم إضافة العقار بنجاح.')
-
-            # التوجيه حسب نوع المستخدم
-            if request.user.user_type == 'admin':
-                return redirect('admin_dashboard')
             return redirect('dashboard')
     else:
         form = PropertyForm()
-
+        # إخفاء الحقول غير المرغوبة
+        for field_name in ['status', 'reserved_by', 'reserved_at', 'executed_by', 'executed_at']:
+            if field_name in form.fields:
+                form.fields[field_name].widget = forms.HiddenInput()
     return render(request, 'core/add_property.html', {'form': form})
 
 
+@login_required
+def my_properties_view(request):
+    properties = Property.objects.filter(owner=request.user).order_by('-created_at')
+    return render(request, 'core/my_properties.html', {'properties': properties})
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from .models import Property, PropertyImage
+from .forms import PropertyForm
+
+@login_required
+def edit_property_view(request, pk):
+    # ✅ إذا كان المستخدم أدمن، يمكنه تعديل أي عقار
+    if request.user.user_type == 'admin':
+        property_obj = get_object_or_404(Property, pk=pk)
+    else:
+        # ✅ الوسيط لا يمكنه تعديل إلا عقاراته فقط
+        property_obj = get_object_or_404(Property, pk=pk, owner=request.user)
+
+    # ✅ إذا كانت عملية تعديل أو حذف صورة
+    if request.method == 'POST':
+        # حذف صورة واحدة
+        if 'delete_image_id' in request.POST:
+            PropertyImage.objects.filter(id=request.POST['delete_image_id'], property=property_obj).delete()
+            return redirect('edit_property', pk=pk)
+
+        # استبدال صورة واحدة
+        if 'replace_image_id' in request.POST and 'replace_image_file' in request.FILES:
+            image_obj = PropertyImage.objects.filter(id=request.POST['replace_image_id'], property=property_obj).first()
+            if image_obj:
+                image_obj.image = request.FILES['replace_image_file']
+                image_obj.save()
+            return redirect('edit_property', pk=pk)
+
+        # تحديث بيانات النموذج
+        form = PropertyForm(request.POST, request.FILES, instance=property_obj)
+        if form.is_valid():
+            form.save()
+
+            # إضافة صور جديدة إن وُجدت
+            for image in request.FILES.getlist('images'):
+                PropertyImage.objects.create(property=property_obj, image=image)
+
+            messages.success(request, '✅ تم تعديل العقار بنجاح.')
+            # إعادة التوجيه حسب نوع المستخدم
+            if request.user.user_type == 'admin':
+                return redirect('admin_properties_list')
+            else:
+                return redirect('my_properties')
+
+    else:
+        form = PropertyForm(instance=property_obj)
+
+    return render(request, 'core/edit_property.html', {
+        'form': form,
+        'property': property_obj,
+        'images': PropertyImage.objects.filter(property=property_obj)
+    })
+
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect
+from .models import Property
+
+from django.shortcuts import render
+
+@login_required
+def delete_property_view(request, pk):
+    if request.user.user_type == 'admin':
+        property_obj = get_object_or_404(Property, pk=pk)
+    else:
+        property_obj = get_object_or_404(Property, pk=pk, owner=request.user)
+
+    if request.method == 'POST':
+        property_obj.delete()
+        if request.user.user_type == 'admin':
+            return redirect('admin_properties_list')
+        else:
+            return redirect('my_properties')
+
+    return render(request, 'core/confirm_delete_property.html', {'property': property_obj})
+
+
+
+@login_required
+def my_executed_requests_view(request):
+    executions = Execution.objects.filter(agent=request.user).order_by('-executed_at')
+    return render(request, 'core/my_executed_requests.html', {'executions': executions})
+
+# ===================================================
+# 🛠️ تنفيذ / حجز / إلغاء العقارات
+# ===================================================
+@login_required
+def reserve_property_view(request, pk):
+    with transaction.atomic():
+        property = Property.objects.select_for_update().get(pk=pk)
+        if property.status == 'available':
+            property.status = 'reserved'
+            property.reserved_by = request.user
+            property.reserved_at = timezone.now()
+            property.executed_by = None
+            property.executed_at = None
+            property.save()
+            messages.success(request, '✅ تم حجز العقار.')
+        else:
+            messages.warning(request, '⚠️ لا يمكن حجز العقار.')
+    return redirect('property_detail', pk=pk)
+
+@login_required
+def execute_property_view(request, pk):
+    with transaction.atomic():
+        property = Property.objects.select_for_update().get(pk=pk)
+        if property.status == 'reserved':
+            if property.reserved_by != request.user:
+                messages.error(request, '⚠️ لا يمكنك تنفيذ هذا العقار لأنه محجوز من قبل وسيط آخر.')
+                return redirect('property_detail', pk=pk)
+
+            property.status = 'executed'
+            property.executed_by = request.user
+            property.executed_at = timezone.now()
+            property.save()
+            messages.success(request, '🏁 تم تنفيذ العقار.')
+        else:
+            messages.warning(request, '⚠️ لا يمكن تنفيذ العقار.')
+    return redirect('property_detail', pk=pk)
+
+
+@login_required
+def cancel_property_reservation(request, pk):
+    property = get_object_or_404(Property, pk=pk)
+
+    if request.user != property.reserved_by and request.user.user_type != 'admin':
+        messages.warning(request, "⚠️ لا يمكنك إلغاء الحجز. هذا الحجز ليس من طرفك.")
+        return redirect('my_properties')
+
+    property.status = 'available'
+    property.reserved_by = None
+    property.reserved_at = None
+    property.save()
+
+    messages.success(request, "✅ تم إلغاء الحجز بنجاح.")
+    return redirect('property_detail', pk=pk)
+
+
+
+@login_required
+def cancel_property_execution(request, pk):
+    property = get_object_or_404(Property, pk=pk)
+
+    if request.user != property.executed_by and request.user.user_type != 'admin':
+        messages.warning(request, "⚠️ لا يمكنك إلغاء التنفيذ. هذا التنفيذ ليس من طرفك.")
+        return redirect('my_properties')
+
+    property.status = 'available'
+    property.executed_by = None
+    property.executed_at = None
+    property.save()
+
+    messages.success(request, "✅ تم إلغاء التنفيذ بنجاح.")
+    return redirect('property_detail', pk=pk)
+
+
+
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from .models import CustomerRequest, Execution
+
+@login_required
+@user_passes_test(lambda u: u.user_type in ['agent', 'admin'])
+def execute_customer_request(request, request_id):
+    customer_request = get_object_or_404(CustomerRequest, id=request_id)
+    if customer_request.status == 'reserved':
+        customer_request.status = 'executed'
+        customer_request.save()
+        Execution.objects.create(customer_request=customer_request, agent=request.user)
+        messages.success(request, '✅ تم تنفيذ الطلب بنجاح.')
+    else:
+        messages.warning(request, '⚠️ لا يمكن تنفيذ الطلب. ربما لم يتم حجزه بعد.')
+    return redirect('customer_requests')
+
+from .forms import CustomerRequestForm
+from .models import CustomerRequestImage
 
 def add_customer_request_view(request):
     if request.method == 'POST':
@@ -210,391 +416,214 @@ def add_customer_request_view(request):
     else:
         form = CustomerRequestForm()
     return render(request, 'core/request_form.html', {'form': form})
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render
+from .models import CustomUser, Property, CustomerRequest
 
 
 @login_required
-def my_properties_view(request):
-    properties = Property.objects.filter(owner=request.user).order_by('-created_at')
-    return render(request, 'core/my_properties.html', {'properties': properties})
-
-@login_required
-def edit_property_view(request, pk):
-    property = get_object_or_404(Property, pk=pk, owner=request.user)
-<<<<<<< HEAD
-
-=======
->>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
-    if request.method == 'POST':
-        form = PropertyForm(request.POST, request.FILES, instance=property)
-        if form.is_valid():
-            form.save()
-<<<<<<< HEAD
-
-            # ✅ حفظ الصور الجديدة إذا تم رفعها
-            for image in request.FILES.getlist('images'):
-                PropertyImage.objects.create(property=property, image=image)
-
-            messages.success(request, '✅ تم تعديل العقار بنجاح.')
-            return redirect('my_properties')
-    else:
-        form = PropertyForm(instance=property)
-
-    return render(request, 'core/edit_property.html', {
-        'form': form,
-        'property': property
-    })
-
-=======
-            messages.success(request, 'تم تعديل العقار بنجاح.')
-            return redirect('my_properties')
-    else:
-        form = PropertyForm(instance=property)
-    return render(request, 'core/edit_property.html', {'form': form, 'property': property})
->>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
-
-@login_required
-def delete_property_view(request, pk):
-    property = get_object_or_404(Property, pk=pk, owner=request.user)
-    if request.method == 'POST':
-        property.delete()
-        messages.success(request, 'تم حذف العقار بنجاح.')
-        return redirect('my_properties')
-    return render(request, 'core/delete_property_confirm.html', {'property': property})
-
-@login_required
-def my_executed_requests_view(request):
-    executions = request.user.execution_set.select_related('customer_request').order_by('-executed_at')
-    return render(request, 'core/my_executed_requests.html', {'executions': executions})
-
-# ===================================================
-# ✅ تنفيذ طلبات العملاء
-# ===================================================
-def is_agent(user):
-    return user.is_authenticated and user.user_type in ['agent', 'admin']
-
-@login_required
-@user_passes_test(is_agent)
-def reserve_customer_request(request, request_id):
-    customer_request = get_object_or_404(CustomerRequest, pk=request_id)
-    if customer_request.status == 'open':
-        customer_request.status = 'reserved'
-        customer_request.reserved_by = request.user
-        customer_request.save()
-        messages.success(request, f'✅ تم حجز الطلب بواسطة {request.user.username}')
-    else:
-        messages.warning(request, '⚠️ لا يمكن حجز هذا الطلب')
-    return redirect('customer_requests')
-
-
-
-@login_required
-@user_passes_test(is_agent)
-def execute_customer_request(request, request_id):
-    customer_request = get_object_or_404(CustomerRequest, pk=request_id)
-    if customer_request.status == 'open':
-        Execution.objects.create(customer_request=customer_request, agent=request.user)
-        customer_request.status = 'executed'
-        customer_request.save()
-    return redirect('customer_requests')
-
-# ===================================================
-# 🛠️ لوحة تحكم الأدمن
-# ===================================================
-def is_admin(user):
-    return user.is_authenticated and user.user_type == 'admin'
-
-@login_required
-@user_passes_test(is_admin)
+@user_passes_test(lambda u: u.user_type == 'admin')
 def agents_list_view(request):
     agents = CustomUser.objects.filter(user_type='agent')
     return render(request, 'core/admin_agents_list.html', {'agents': agents})
-
 @login_required
-@user_passes_test(is_admin)
-def all_requests_admin_view(request):
-    requests = CustomerRequest.objects.all().order_by('-created_at')
-    city = request.GET.get('city')
-    status = request.GET.get('status')
-    if city:
-        requests = requests.filter(city__icontains=city)
-    if status in ['open', 'executed']:
-        requests = requests.filter(status=status)
-    return render(request, 'core/admin_all_requests.html', {'requests': requests})
-
-def edit_agent(request, pk):
-    user = get_object_or_404(CustomUser, pk=pk)
-    if request.method == 'POST':
-        form = CustomUserUpdateForm(request.POST, instance=user, user_id=user.id)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "✅ تم حفظ التعديلات بنجاح.")
-            return redirect('admin_edit_agent', pk=user.id)
-    else:
-        form = CustomUserUpdateForm(instance=user, user_id=user.id)
-    return render(request, 'core/admin_edit_agent.html', {'form': form})
-
-@login_required
-@user_passes_test(is_admin)
-def delete_agent_view(request, pk):
-    agent = get_object_or_404(CustomUser, pk=pk, user_type='agent')
-    if request.method == 'POST':
-        agent.delete()
-        messages.success(request, 'تم حذف الوسيط.')
-        return redirect('agents_list')
-    return render(request, 'core/admin_delete_agent_confirm.html', {'agent': agent})
-
-@login_required
-@user_passes_test(is_admin)
-
-def admin_dashboard_view(request):
-    total_agents = CustomUser.objects.filter(user_type='agent').count()
-    total_requests = CustomerRequest.objects.count()
-    total_properties = Property.objects.count()
-    highest_price = Property.objects.order_by('-price').first()
-    all_properties = Property.objects.all().order_by('-created_at')
-
-    open_requests = CustomerRequest.objects.filter(status='open').order_by('-created_at')
-
-    context = {
-        'total_agents': total_agents,
-        'total_requests': total_requests,
-        'total_properties': total_properties,
-        'highest_price': highest_price,
-        'open_requests': open_requests,
-        'all_properties': all_properties,
-    }
-    return render(request, 'core/admin_dashboard.html', context)
-
-
-@login_required
-@user_passes_test(is_admin)
+@user_passes_test(lambda u: u.user_type == 'admin')
 def create_agent_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            messages.success(request, 'تم إنشاء المستخدم بنجاح.')
-            return redirect('admin_agents')
+            user = form.save(commit=False)
+            user.user_type = 'agent'
+            user.save()
+            messages.success(request, '✅ تم إنشاء الوسيط بنجاح.')
+            return redirect('agents_list')
     else:
         form = CustomUserCreationForm()
     return render(request, 'core/admin_add_agent.html', {'form': form})
+@login_required
+@user_passes_test(lambda u: u.user_type == 'admin')
+def edit_agent(request, pk):
+    agent = get_object_or_404(CustomUser, pk=pk, user_type='agent')
+    
+    if request.method == 'POST':
+        form = CustomUserUpdateForm(request.POST, instance=agent, user_id=agent.id)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "✅ تم تعديل بيانات الوسيط بنجاح.")
+            return redirect('agents_list')
+    else:
+        form = CustomUserUpdateForm(instance=agent, user_id=agent.id)
+    
+    return render(request, 'core/admin_edit_agent.html', {'form': form, 'agent': agent})
+@login_required
+@user_passes_test(lambda u: u.user_type == 'admin')
+def delete_agent_view(request, pk):
+    agent = get_object_or_404(CustomUser, pk=pk, user_type='agent')
+    
+    if request.method == 'POST':
+        agent.delete()
+        messages.success(request, '✅ تم حذف الوسيط بنجاح.')
+        return redirect('agents_list')
+    
+    return render(request, 'core/admin_delete_agent_confirm.html', {'agent': agent})
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(lambda u: u.user_type == 'admin')
+def all_requests_admin_view(request):
+    requests = CustomerRequest.objects.all().order_by('-created_at')
+    city = request.GET.get('city')
+    status = request.GET.get('status')
+
+    if city:
+        requests = requests.filter(city__icontains=city)
+    if status in ['open', 'executed', 'reserved']:
+        requests = requests.filter(status=status)
+
+    return render(request, 'core/admin_all_requests.html', {
+        'requests': requests,
+        'selected_city': city or '',
+        'selected_status': status or '',
+    })
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required, user_passes_test
+from .models import CustomerRequest
+from .forms import CustomerRequestForm
+
+@login_required
+@user_passes_test(lambda u: u.user_type == 'admin')
 def admin_edit_request_view(request, request_id):
     customer_request = get_object_or_404(CustomerRequest, id=request_id)
+    
     if request.method == 'POST':
         form = CustomerRequestForm(request.POST, request.FILES, instance=customer_request)
         if form.is_valid():
             form.save()
-            messages.success(request, 'تم تعديل الطلب بنجاح.')
+            messages.success(request, '✅ تم تعديل الطلب بنجاح.')
             return redirect('admin_all_requests')
     else:
         form = CustomerRequestForm(instance=customer_request)
-    return render(request, 'core/admin_edit_request.html', {'form': form, 'request_obj': customer_request})
+
+    return render(request, 'core/admin_edit_request.html', {
+        'form': form,
+        'request_obj': customer_request
+    })
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import get_object_or_404, redirect, render
+from .models import CustomerRequest
+from django.contrib import messages
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(lambda u: u.user_type == 'admin')
 def admin_delete_request_view(request, request_id):
     customer_request = get_object_or_404(CustomerRequest, id=request_id)
+
     if request.method == 'POST':
         customer_request.delete()
-        messages.success(request, 'تم حذف الطلب بنجاح.')
+        messages.success(request, '✅ تم حذف الطلب بنجاح.')
         return redirect('admin_all_requests')
+
     return render(request, 'core/admin_delete_request_confirm.html', {'request_obj': customer_request})
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required, user_passes_test
+from .models import Property
+from .forms import PropertyForm
 
-
-@login_required
-@user_passes_test(is_agent)
-def cancel_reservation(request, request_id):
-    customer_request = get_object_or_404(CustomerRequest, pk=request_id)
-    
-    if customer_request.status == 'reserved' and customer_request.reserved_by == request.user:
-        customer_request.status = 'open'
-        customer_request.reserved_by = None
-        customer_request.save()
-        messages.success(request, '✅ تم إلغاء الحجز بنجاح.')
-    else:
-        messages.error(request, '❌ لا يمكنك إلغاء هذا الحجز.')
-    
-    return redirect('customer_requests')
+# تحقق أن المستخدم هو أدمن
+def is_admin(user):
+    return user.is_authenticated and user.user_type == 'admin'
 
 @login_required
-<<<<<<< HEAD
-def edit_property_view(request, pk):
-    property = get_object_or_404(Property, pk=pk, owner=request.user)
-
-    # ✅ حذف صورة من الصور المتعددة
-    if request.method == 'POST' and 'delete_image_id' in request.POST:
-        image_id = request.POST.get('delete_image_id')
-        PropertyImage.objects.filter(id=image_id, property=property).delete()
-        messages.success(request, '✅ تم حذف الصورة بنجاح.')
-        return redirect('edit_property', pk=property.pk)
-
-    # ✅ استبدال صورة موجودة
-    if request.method == 'POST' and 'replace_image_id' in request.POST:
-        image_id = request.POST.get('replace_image_id')
-        new_image_file = request.FILES.get('replace_image_file')
-        if new_image_file:
-            image_instance = PropertyImage.objects.filter(id=image_id, property=property).first()
-            if image_instance:
-                image_instance.image = new_image_file
-                image_instance.save()
-                messages.success(request, '✅ تم استبدال الصورة بنجاح.')
-        return redirect('edit_property', pk=property.pk)
-
-    # ✅ تعديل بيانات العقار وإضافة صور جديدة
-=======
 @user_passes_test(is_admin)
 def admin_edit_property(request, property_id):
-    property = get_object_or_404(Property, id=property_id)
+    property_obj = get_object_or_404(Property, id=property_id)
 
->>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
     if request.method == 'POST':
-        form = PropertyForm(request.POST, request.FILES, instance=property)
+        form = PropertyForm(request.POST, request.FILES, instance=property_obj)
         if form.is_valid():
             form.save()
-<<<<<<< HEAD
-            for image in request.FILES.getlist('images'):
-                PropertyImage.objects.create(property=property, image=image)
-            messages.success(request, '✅ تم تعديل العقار بنجاح.')
-            return redirect('my_properties')
+            return redirect('admin_properties_list')
     else:
-        form = PropertyForm(instance=property)
+        form = PropertyForm(instance=property_obj)
 
-    return render(request, 'core/edit_property.html', {
-        'form': form,
-        'property': property
-    })
+    return render(request, 'core/admin_edit_property.html', {'form': form, 'property': property_obj})
 
-=======
-            messages.success(request, '✅ تم تعديل العقار بنجاح')
-            return redirect('admin_dashboard')
-    else:
-        form = PropertyForm(instance=property)
-
-    return render(request, 'core/admin_edit_property.html', {'form': form, 'property': property})
->>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
-@login_required
-@user_passes_test(is_admin)
-def admin_delete_property(request, property_id):
-    property = get_object_or_404(Property, id=property_id)
-    property.delete()
-    messages.success(request, '🗑️ تم حذف العقار بنجاح')
-    return redirect('admin_dashboard')
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.shortcuts import render, redirect
-from .forms import PropertyForm
+from django.shortcuts import get_object_or_404, redirect
+from .models import Property
 
 def is_admin(user):
     return user.is_authenticated and user.user_type == 'admin'
 
-<<<<<<< HEAD
 @login_required
-@user_passes_test(lambda u: u.is_superuser or u.user_type == 'admin')
-def admin_edit_property(request, property_id):
-    property = get_object_or_404(Property, id=property_id)
+@user_passes_test(is_admin)
+def admin_delete_property(request, property_id):
+    property_obj = get_object_or_404(Property, id=property_id)
+    property_obj.delete()
+    return redirect('admin_properties_list')
 
-    if request.method == 'POST':
-        form = PropertyForm(request.POST, request.FILES, instance=property)
-        if form.is_valid():
-            form.save()
-            for image in request.FILES.getlist('images'):
-                PropertyImage.objects.create(property=property, image=image)
-            messages.success(request, '✅ تم تعديل العقار بنجاح.')
-            return redirect('admin_dashboard')
-    else:
-        form = PropertyForm(instance=property)
 
-    return render(request, 'core/admin_edit_property.html', {
-        'form': form,
-        'property': property
-    })
-
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.db import transaction
-from django.utils import timezone
-from .models import Property
-
+from .models import CustomerRequest
 
 @login_required
-def reserve_property_view(request, pk):
-    try:
-        with transaction.atomic():
-            property = Property.objects.select_for_update().get(pk=pk)
-            if request.user.user_type in ['agent', 'admin'] and property.status == 'available':
-                property.status = 'reserved'
-                property.reserved_by = request.user
-                property.reserved_at = timezone.now()
-                property.executed_by = None
-                property.executed_at = None
-                property.save()
-                messages.success(request, '✅ تم حجز العقار بنجاح.')
-            else:
-                messages.warning(request, '⚠️ لا يمكن حجز العقار. ربما تم حجزه مسبقًا.')
-    except Property.DoesNotExist:
-        messages.error(request, '❌ العقار غير موجود.')
-    return redirect('property_detail', pk=pk)
-
+@user_passes_test(lambda u: u.user_type in ['agent', 'admin'])
+def reserve_customer_request(request, request_id):
+    customer_request = get_object_or_404(CustomerRequest, id=request_id)
+    if customer_request.status == 'open':
+        customer_request.status = 'reserved'
+        customer_request.save()
+        messages.success(request, '✅ تم حجز الطلب بنجاح.')
+    else:
+        messages.warning(request, '⚠️ لا يمكن حجز الطلب. تحقق من حالته الحالية.')
+    return redirect('customer_requests')
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from .models import CustomerRequest
 
 @login_required
-def execute_property_view(request, pk):
-    try:
-        with transaction.atomic():
-            property = Property.objects.select_for_update().get(pk=pk)
-            if request.user.user_type in ['agent', 'admin'] and property.status == 'reserved':
-                property.status = 'executed'
-                property.executed_by = request.user
-                property.executed_at = timezone.now()
-                property.save()
-                messages.success(request, '🏁 تم تنفيذ العقار بنجاح.')
-            else:
-                messages.warning(request, '⚠️ لا يمكن تنفيذ العقار. قد يكون تم تنفيذه أو غير محجوز.')
-    except Property.DoesNotExist:
-        messages.error(request, '❌ العقار غير موجود.')
-    return redirect('property_detail', pk=pk)
+@user_passes_test(lambda u: u.user_type in ['agent', 'admin'])
+def cancel_reservation(request, request_id):
+    customer_request = get_object_or_404(CustomerRequest, id=request_id)
+    if customer_request.status == 'reserved':
+        customer_request.status = 'open'
+        customer_request.save()
+        messages.success(request, '✅ تم إلغاء الحجز وإعادة الطلب إلى الحالة المفتوحة.')
+    else:
+        messages.warning(request, '⚠️ لا يمكن إلغاء الحجز، لأن الطلب ليس في حالة محجوز.')
+    return redirect('customer_requests')
 
-
-@login_required
-def cancel_property_reservation(request, pk):
-    try:
-        with transaction.atomic():
-            property = Property.objects.select_for_update().get(pk=pk)
-            if request.user.user_type in ['agent', 'admin'] and property.status == 'reserved':
-                property.status = 'available'
-                property.reserved_by = None
-                property.reserved_at = None
-                property.executed_by = None
-                property.executed_at = None
-                property.save()
-                messages.success(request, '✅ تم إلغاء الحجز بنجاح.')
-            else:
-                messages.error(request, '⚠️ لا يمكن إلغاء الحجز. ربما تم تنفيذه أو تغيّرت حالته.')
-    except Property.DoesNotExist:
-        messages.error(request, '❌ العقار غير موجود.')
-    return redirect('property_detail', pk=pk)
-
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required, user_passes_test
+from .forms import SiteSettingsForm
+from .models import SiteSettings
 
 @login_required
-def cancel_property_execution(request, pk):
-    try:
-        with transaction.atomic():
-            property = Property.objects.select_for_update().get(pk=pk)
-            if request.user.user_type in ['agent', 'admin'] and property.status == 'executed':
-                property.status = 'reserved'
-                property.executed_by = None
-                property.executed_at = None
-                property.save()
-                messages.success(request, '✅ تم إلغاء التنفيذ بنجاح.')
-            else:
-                messages.error(request, '⚠️ لا يمكن إلغاء التنفيذ. قد لا يكون العقار منفذًا.')
-    except Property.DoesNotExist:
-        messages.error(request, '❌ العقار غير موجود.')
-    return redirect('property_detail', pk=pk)
+@user_passes_test(lambda u: u.user_type == 'admin')
+def site_settings_view(request):
+    settings, created = SiteSettings.objects.get_or_create(pk=1)
 
+    if request.method == 'POST':
+        form = SiteSettingsForm(request.POST, instance=settings)
+        if form.is_valid():
+            form.save()
+            return redirect('site_settings')
+    else:
+        form = SiteSettingsForm(instance=settings)
 
+    return render(request, 'core/site_settings.html', {'form': form})
 
-=======
->>>>>>> a18103ec224a7c7f6b4aeb3b6d92ca15170bcc3e
+@login_required
+@user_passes_test(lambda u: u.user_type == 'admin')
+def confirm_delete_property_view(request, pk):
+    property_obj = get_object_or_404(Property, pk=pk)
+    
+    if request.method == 'POST':
+        property_obj.delete()
+        messages.success(request, "✅ تم حذف العقار بنجاح.")
+        return redirect('admin_properties_list')
+    
+    return render(request, 'core/confirm_delete_property.html', {'property': property_obj})

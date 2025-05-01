@@ -1,0 +1,54 @@
+{% extends 'core/base.html' %}
+{% block title %}كل العقارات{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4 text-center fw-bold">📋 كل العقارات</h2>
+
+    <table class="table table-bordered table-striped text-center align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>الرقم</th>
+                <th>النوع</th>
+                <th>العرض</th>
+                <th>السعر</th>
+                <th>الحالة</th>
+                <th>المدينة</th>
+                <th>الخيارات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for property in properties %}
+                <tr>
+                    <td>{{ property.id }}</td>
+                    <td>{{ property.get_property_type_display }}</td>
+                    <td>{{ property.get_offer_type_display }}</td>
+                    <td>{{ property.price|floatformat:0 }} ريال</td>
+                    <td>{{ property.get_status_display }}</td>
+                    <td>{{ property.city }}</td>
+                    <td>
+                        <a href="{% url 'admin_edit_property' property.id %}" class="btn btn-sm btn-primary mb-1">تعديل</a>
+                        
+                        <!-- زر الحذف مع تأكيد -->
+                        <a href="{% url 'confirm_delete_property' property.id %}" class="btn btn-sm btn-danger mb-1">حذف</a>
+
+                        <a href="{% url 'property_detail' property.id %}" class="btn btn-sm btn-info mb-1">عرض</a>
+
+                        {% if property.status == 'reserved' %}
+                            <a href="{% url 'cancel_property_reservation' property.id %}" class="btn btn-sm btn-warning mb-1">إلغاء الحجز</a>
+                        {% endif %}
+
+                        {% if property.status == 'executed' %}
+                            <a href="{% url 'cancel_property_execution' property.id %}" class="btn btn-sm btn-secondary mb-1">إلغاء التنفيذ</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7" class="text-muted">لا توجد عقارات مسجلة حاليًا.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
