@@ -79,12 +79,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'real_estate_platform.wsgi.application'
 
 # قاعدة البيانات (SQLite)
+import dj_database_url
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+'default': dj_database_url.config(default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'))
 }
+
 
 # تحقق كلمة المرور
 AUTH_PASSWORD_VALIDATORS = [
