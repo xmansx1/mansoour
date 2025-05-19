@@ -1,0 +1,85 @@
+{% extends 'core/base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}تعديل بيانات المستخدم{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="col-lg-8 offset-lg-2">
+        <div class="card shadow-sm p-4 rounded-4">
+            <h3 class="text-center text-info mb-4">✏️ تعديل بيانات المستخدم</h3>
+
+            <!-- ✅ عرض رسائل النجاح -->
+            {% if messages %}
+              {% for message in messages %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                  {{ message }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              {% endfor %}
+            {% endif %}
+
+            <!-- ✅ عرض أخطاء النموذج -->
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <li><strong>{{ field|title }}:</strong> {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label">اسم المستخدم</label>
+                        {{ form.username|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">البريد الإلكتروني</label>
+                        {{ form.email|add_class:"form-control" }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">رقم الجوال</label>
+                        {{ form.phone|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">المدينة</label>
+                        {{ form.city|add_class:"form-control" }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">الحي</label>
+                        {{ form.district|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">رقم الرخصة</label>
+                        {{ form.license_number|add_class:"form-control" }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">نوع المستخدم</label>
+                        {{ form.user_type|add_class:"form-select" }}
+                    </div>
+                </div>
+
+                <!-- ✅ أزرار -->
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'agents_list' %}" class="btn btn-outline-secondary">
+                        🔙 العودة للقائمة
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        💾 حفظ التعديلات
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

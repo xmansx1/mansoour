@@ -1,0 +1,92 @@
+{% extends "core/base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4 text-primary">➕ إضافة عقار جديد</h2>
+
+    <form method="POST" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li><strong>{{ field }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="row g-3">
+            {% for field in form.visible_fields %}
+                  {% if field.name != 'description' and field.name != 'images' and field.name != 'latitude' and field.name != 'longitude' %}
+                     <div class="col-md-6">
+                        <label class="form-label">{{ field.label }}</label>
+                        {{ field|add_class:"form-control" }}
+                    </div>
+                  {% endif %}
+            {% endfor %}
+
+
+            <div class="col-12">
+                <label class="form-label">📍 حدد موقع العقار على الخريطة</label>
+                <div id="map" style="height: 400px;" class="rounded border mb-3 shadow-sm"></div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">خط العرض (Latitude)</label>
+                {{ form.latitude|add_class:"form-control"|attr:"step:any" }}
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">خط الطول (Longitude)</label>
+                {{ form.longitude|add_class:"form-control"|attr:"step:any" }}
+            </div>
+
+            <div class="col-md-12">
+                <label class="form-label">تفاصيل إضافية</label>
+                {{ form.description|add_class:"form-control"|attr:"rows:4" }}
+            </div>
+
+            <div class="col-md-12">
+                <label class="form-label">📷 صور العقار (يمكنك تحديد أكثر من صورة)</label>
+                <input type="file" name="images" multiple class="form-control" accept="image/*">
+                <small class="text-muted">يفضل صور واضحة وعالية الجودة</small>
+            </div>
+        </div>
+
+        <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                ➕ إضافة العقار
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- 🌍 خريطة Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const latField = document.getElementById("id_latitude");
+    const lngField = document.getElementById("id_longitude");
+
+    const defaultLat = parseFloat(latField.value) || 24.7136;
+    const defaultLng = parseFloat(lngField.value) || 46.6753;
+
+    const map = L.map('map').setView([defaultLat, defaultLng], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    const marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+
+    marker.on('dragend', function () {
+      const pos = marker.getLatLng();
+      latField.value = pos.lat.toFixed(6);
+      lngField.value = pos.lng.toFixed(6);
+    });
+  });
+</script>
+{% endblock %}

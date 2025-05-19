@@ -1,0 +1,42 @@
+{% extends 'core/base.html' %}
+
+{% block title %}عقاراتي{% endblock %}
+
+{% block content %}
+<div class="col-lg-10 offset-lg-1">
+    <h3 class="text-center mb-4 text-success">📂 قائمة العقارات الخاصة بي</h3>
+
+    {% if properties %}
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            {% for property in properties %}
+            <div class="col">
+                <div class="card shadow-sm h-100 position-relative">
+                    {% if property.image %}
+                        <img src="{{ property.image.url }}" class="card-img-top" style="height: 220px; object-fit: cover; border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem;" alt="صورة العقار">
+                    {% endif %}
+
+                    {% if property.is_reserved %}
+                        <span class="badge bg-warning position-absolute top-0 start-0 m-2">محجوز</span>
+                    {% elif property.is_executed %}
+                        <span class="badge bg-success position-absolute top-0 start-0 m-2">تم التنفيذ</span>
+                    {% endif %}
+
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-primary">{{ property.get_property_type_display }} - {{ property.city }}</h5>
+                        <p class="card-text mb-1"><i class="bi bi-geo-alt"></i> {{ property.district }}</p>
+                        <p class="card-text mb-2"><i class="bi bi-cash-coin"></i> {{ property.price|floatformat:0 }} ريال</p>
+
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="{% url 'edit_property' property.pk %}" class="btn btn-sm btn-outline-warning">✏️ تعديل</a>
+                            <a href="{% url 'delete_property' property.pk %}" class="btn btn-sm btn-outline-danger">🗑️ حذف</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center">لا توجد عقارات مضافة حاليًا.</div>
+    {% endif %}
+</div>
+{% endblock %}

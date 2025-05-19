@@ -1,0 +1,30 @@
+{% extends 'core/base.html' %}
+
+{% block title %}تأكيد حذف الوسيط{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="col-lg-6 offset-lg-3">
+        <div class="card shadow-sm border-danger rounded-4 p-4">
+            <h3 class="text-center text-danger mb-4">⚠️ تأكيد حذف المستخدم</h3>
+
+            <p class="text-center fs-5">
+                هل أنت متأكد أنك تريد حذف الوسيط
+                <strong class="text-danger">{{ agent.username }}</strong>؟
+            </p>
+
+            <div class="d-flex justify-content-center gap-3 mt-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-lg px-4">
+                        نعم، حذف
+                    </button>
+                </form>
+                <a href="{% url 'agents_list' %}" class="btn btn-secondary btn-lg px-4">
+                    إلغاء
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

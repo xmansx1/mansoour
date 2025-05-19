@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Env
+.env
+*.env
+
+# Virtual Environments
+venv/
+env/
+.venv/
+.env.bak/
+
+# Django
+db.sqlite3
+media/
+
+# VSCode
+.vscode/
+
+# Mac & OS
+.DS_Store
+Thumbs.db
+
+# Render-specific
+staticfiles/
+build/

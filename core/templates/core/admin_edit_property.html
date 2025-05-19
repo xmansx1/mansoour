@@ -1,0 +1,77 @@
+{% extends 'core/base.html' %}
+{% block title %}تعديل العقار{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="col-lg-10 offset-lg-1">
+        <div class="card shadow-lg border-0 rounded-4 p-4">
+            <h3 class="text-center mb-4 text-primary">✏️ تعديل العقار رقم {{ property.id }}</h3>
+
+            <!-- عرض أخطاء النموذج إن وجدت -->
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row g-3">
+                    {% for field in form %}
+                    <div class="col-md-6">
+                        <label class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger small">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <!-- صور العقار الجديدة -->
+                    <div class="col-12 mt-3">
+                        <label class="form-label">📁 صور جديدة (يمكن رفع عدة صور)</label>
+                        <input type="file" name="images" class="form-control" multiple>
+                    </div>
+
+                    <!-- صور العقار الحالية -->
+                    {% if property.images.all %}
+                    <div class="col-12 mt-4">
+                        <label class="form-label">📸 الصور الحالية:</label>
+                        <div class="row row-cols-1 row-cols-md-3 g-3">
+                            {% for img in property.images.all %}
+                            <div class="col">
+                                <div class="card h-100 border rounded-3 shadow-sm position-relative">
+                                    <img src="{{ img.image.url }}" class="card-img-top" alt="صورة العقار">
+                                    <div class="p-2">
+                                        <a href="{% url 'delete_property_image' img.id %}" 
+                                           class="btn btn-sm btn-outline-danger w-100 mt-2"
+                                           onclick="return confirm('هل أنت متأكد أنك تريد حذف هذه الصورة؟');">
+                                            🗑️ حذف الصورة
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="mt-5 text-center">
+                    <button type="submit" class="btn btn-success px-4 fs-5">💾 حفظ التعديلات</button>
+                    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary px-4 fs-5">🔙 رجوع</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

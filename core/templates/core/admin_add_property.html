@@ -1,0 +1,30 @@
+{% extends 'core/base.html' %}
+{% block title %}إضافة عقار جديد{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-sm p-4">
+        <h3 class="text-center mb-4 text-primary">🏡 إضافة عقار جديد</h3>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row g-3">
+                {% for field in form %}
+                <div class="col-md-6">
+                    <label class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="text-danger small">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="mt-4 text-center">
+                <button type="submit" class="btn btn-success px-4">💾 حفظ العقار</button>
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary px-4">🔙 رجوع</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

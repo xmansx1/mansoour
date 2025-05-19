@@ -1,0 +1,92 @@
+{% extends 'core/base.html' %}
+{% block title %}طلبات العملاء{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm p-4">
+    <h3 class="mb-4 text-center text-primary">📋 طلبات العملاء</h3>
+
+    <!-- ✅ فلترة الطلبات -->
+    <form method="get" class="row mb-4">
+        <div class="col-md-3">
+            <input type="text" name="city" class="form-control" placeholder="🔍 المدينة" value="{{ selected_city }}">
+        </div>
+        <div class="col-md-3">
+            <input type="text" name="district" class="form-control" placeholder="🏘️ الحي" value="{{ selected_district }}">
+        </div>
+        <div class="col-md-3">
+            <select name="request_type" class="form-select">
+                <option value="">📌 نوع الطلب</option>
+                <option value="buy" {% if selected_type == "buy" %}selected{% endif %}>شراء</option>
+                <option value="sell" {% if selected_type == "sell" %}selected{% endif %}>بيع</option>
+                <option value="rent" {% if selected_type == "rent" %}selected{% endif %}>استئجار</option>
+                <option value="lease" {% if selected_type == "lease" %}selected{% endif %}>تأجير</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100">🔍 تطبيق الفلتر</button>
+        </div>
+    </form>
+
+    {% if requests %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>👤 الاسم</th>
+                    <th>📞 الجوال</th>
+                    <th>📍 المدينة</th>
+                    <th>🏘️ الحي</th>
+                    <th>📌 نوع الطلب</th>
+                    <th>🏠 نوع العقار</th>
+                    <th>💰 السعر الأعلى</th>
+                    <th>⚙️ الحالة / إجراء</th>
+                    <th>👁️ التفاصيل</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in requests %}
+                <tr class="{% if r.status == 'open' %}status-open{% elif r.status == 'reserved' %}status-reserved{% elif r.status == 'executed' %}status-executed{% endif %}">
+                    <td>{{ r.full_name }}</td>
+                    <td>{{ r.phone }}</td>
+                    <td>{{ r.city }}</td>
+                    <td>{{ r.district }}</td>
+                    <td>{{ r.get_request_type_display }}</td>
+                    <td>{{ r.get_property_type_display }}</td>
+                    <td>{{ r.max_price|floatformat:0 }} ريال</td>
+                    <td>
+                        {% if r.status == 'executed' %}
+                            <span class="badge bg-success">✅ تم التنفيذ</span><br>
+                            {% if r.execution %}
+                                <small class="text-muted">بواسطة: {{ r.execution.agent.username }}</small>
+                            {% endif %}
+
+                        {% elif r.status == 'reserved' %}
+                            <span class="badge bg-warning text-dark">⏳ محجوز</span><br>
+                            <small class="text-muted">بواسطة: {{ r.reserved_by.username }}</small><br>
+
+                            {% if r.reserved_by == request.user %}
+                                <a href="{% url 'cancel_reservation' r.id %}" class="btn btn-sm btn-outline-danger mt-1 hover-btn">❌ إلغاء الحجز</a>
+                            {% endif %}
+
+                        {% else %}
+                            <a href="{% url 'execute_request' r.id %}" class="btn btn-sm btn-outline-success hover-btn">تنفيذ</a>
+                            <a href="{% url 'reserve_request' r.id %}" class="btn btn-sm btn-outline-warning hover-btn">حجز</a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if r.status == 'reserved' and r.reserved_by != request.user %}
+                            <button class="btn btn-sm btn-outline-secondary" disabled>محجوز</button>
+                        {% else %}
+                            <a href="{% url 'request_detail' r.id %}" class="btn btn-sm btn-outline-info hover-btn">عرض</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p class="text-muted text-center">لا توجد طلبات تنطبق عليها الفلاتر.</p>
+    {% endif %}
+</div>
+{% endblock %}

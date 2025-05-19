@@ -1,0 +1,63 @@
+{% extends 'core/base.html' %}
+
+{% block title %}تفاصيل الطلب العقاري{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow border-0 rounded-4 p-4">
+                <h3 class="text-center text-primary fw-bold mb-4">📋 تفاصيل الطلب العقاري</h3>
+
+                {% if request_obj.images.exists %}
+                <div id="requestImagesSlider" class="carousel slide mb-4 rounded overflow-hidden" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for image in request_obj.images.all %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                            <img src="{{ image.image.url }}" class="d-block w-100" style="height: 400px; object-fit: cover;" alt="صورة للطلب">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if request_obj.images.count > 1 %}
+                    <button class="carousel-control-prev" type="button" data-bs-target="#requestImagesSlider" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#requestImagesSlider" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    </button>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="alert alert-light text-center border mb-4">📎 لا توجد صور مرفقة لهذا الطلب</div>
+                {% endif %}
+
+                <ul class="list-group list-group-flush mb-4">
+                    <li class="list-group-item py-3"><strong>👤 الاسم:</strong> {{ request_obj.full_name }}</li>
+                    <li class="list-group-item py-3"><strong>📞 الجوال:</strong> {{ request_obj.phone }}</li>
+                    <li class="list-group-item py-3"><strong>📍 المدينة:</strong> {{ request_obj.city }}</li>
+                    <li class="list-group-item py-3"><strong>🏘️ الحي:</strong> {{ request_obj.district }}</li>
+                    <li class="list-group-item py-3"><strong>📌 نوع الطلب:</strong> {{ request_obj.get_request_type_display }}</li>
+                    <li class="list-group-item py-3"><strong>🏠 نوع العقار:</strong> {{ request_obj.get_property_type_display }}</li>
+                    <li class="list-group-item py-3"><strong>📏 المساحة المطلوبة:</strong> {{ request_obj.area_required }} م²</li>
+                    <li class="list-group-item py-3"><strong>💰 الحد الأعلى للسعر:</strong> {{ request_obj.max_price|floatformat:0 }} ريال</li>
+                    <li class="list-group-item py-3"><strong>💳 طريقة الدفع:</strong> {{ request_obj.get_payment_method_display }}</li>
+                    <li class="list-group-item py-3"><strong>📝 التفاصيل الإضافية:</strong><br>{{ request_obj.details|default:"-"|linebreaksbr }}</li>
+                    <li class="list-group-item py-3">
+                        <strong>🚦 الحالة:</strong>
+                        {% if request_obj.status == 'executed' %}
+                            <span class="badge bg-success">✅ تم التنفيذ</span>
+                            <br><small class="text-muted">بواسطة: {{ request_obj.execution.agent }}</small>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">⏳ لم يتم التنفيذ بعد</span>
+                        {% endif %}
+                    </li>
+                </ul>
+
+                <div class="text-center">
+                    <a href="{% url 'customer_requests' %}" class="btn btn-outline-secondary rounded-pill px-4">🔙 العودة إلى الطلبات</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

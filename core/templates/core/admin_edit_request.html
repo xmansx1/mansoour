@@ -1,0 +1,18 @@
+{% extends 'core/base.html' %}
+{% block title %}تعديل الطلب{% endblock %}
+
+{% block content %}
+<div class="col-md-8 offset-md-2">
+    <div class="card shadow-sm p-4">
+        <h3 class="text-center mb-4 text-primary">📝 تعديل طلب العميل</h3>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary">💾 حفظ التعديلات</button>
+                <a href="{% url 'admin_all_requests' %}" class="btn btn-secondary">🔙 إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

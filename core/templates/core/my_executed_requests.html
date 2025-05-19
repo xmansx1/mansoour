@@ -1,0 +1,42 @@
+{% extends 'core/base.html' %}
+
+{% block title %}طلباتي المنفذة{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm p-4">
+    <h3 class="mb-4 text-center">طلباتي التي قمت بتنفيذها</h3>
+
+    {% if executions %}
+    <div class="table-responsive">
+        <table class="table table-bordered text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>اسم العميل</th>
+                    <th>نوع الطلب</th>
+                    <th>نوع العقار</th>
+                    <th>المدينة</th>
+                    <th>الحي</th>
+                    <th>السعر الأقصى</th>
+                    <th>تاريخ التنفيذ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exec in executions %}
+                <tr>
+                    <td>{{ exec.customer_request.full_name }}</td>
+                    <td>{{ exec.customer_request.get_request_type_display }}</td>
+                    <td>{{ exec.customer_request.get_property_type_display }}</td>
+                    <td>{{ exec.customer_request.city }}</td>
+                    <td>{{ exec.customer_request.district }}</td>
+                    <td>{{ exec.customer_request.max_price }} ريال</td>
+                    <td>{{ exec.executed_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted text-center">لم تقم بتنفيذ أي طلب حتى الآن.</p>
+    {% endif %}
+</div>
+{% endblock %}

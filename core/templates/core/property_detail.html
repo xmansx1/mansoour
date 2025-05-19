@@ -1,0 +1,117 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}تفاصيل العقار{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row g-4">
+    <!-- 📷 صور العقار -->
+    <div class="col-lg-7">
+      {% if images %}
+        <div id="propertyCarousel" class="carousel slide rounded-4 overflow-hidden shadow mb-4" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            {% for image in images %}
+              <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <img src="{{ image.image.url }}" class="d-block w-100" style="height: 400px; object-fit: cover;">
+              </div>
+            {% endfor %}
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#propertyCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#propertyCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+          </button>
+        </div>
+      {% elif property.image %}
+        <img src="{{ property.image.url }}" class="img-fluid rounded-4 shadow-sm mb-4" style="height: 400px; object-fit: cover;">
+      {% else %}
+        <img src="{% static 'default.jpg' %}" class="img-fluid rounded-4 shadow-sm mb-4" style="height: 400px; object-fit: cover;">
+      {% endif %}
+
+      {% if property.latitude and property.longitude %}
+      <!-- 🗺️ موقع العقار -->
+      <div class="mt-4">
+        <h5 class="text-primary mb-2">📍 موقع العقار على الخريطة</h5>
+        <div id="map" class="rounded border shadow-sm mb-3" style="height: 400px;"></div>
+
+        <!-- 🌐 زر Google Maps -->
+        <a href="https://www.google.com/maps?q={{ property.latitude|floatformat:6|stringformat:'s'|cut:',' }}%2C{{ property.longitude|floatformat:6|stringformat:'s'|cut:',' }}"
+           target="_blank"
+           class="btn btn-outline-primary btn-sm w-100 shadow-sm">
+          🌐 عرض الموقع على Google Maps
+        </a>
+      </div>
+
+      <!-- Leaflet JS -->
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          const lat = parseFloat("{{ property.latitude|floatformat:6 }}".replace(",", "."));
+          const lng = parseFloat("{{ property.longitude|floatformat:6 }}".replace(",", "."));
+          const map = L.map('map').setView([lat, lng], 15);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+          L.marker([lat, lng]).addTo(map).bindPopup("📍 موقع العقار").openPopup();
+        });
+      </script>
+      {% endif %}
+    </div>
+
+    <!-- 🏠 تفاصيل العقار -->
+    <div class="col-lg-5">
+      <h3 class="text-primary fw-bold mb-3">
+        {{ property.get_property_type_display }} - <span class="text-dark">{{ property.city }}</span>
+      </h3>
+
+      <ul class="list-group list-group-flush mb-4 border rounded shadow-sm">
+        <li class="list-group-item"><i class="bi bi-geo-alt-fill me-2"></i>الحي: {{ property.district }}</li>
+        <li class="list-group-item"><i class="bi bi-cash-coin me-2"></i>السعر: {{ property.price|floatformat:0 }} ريال</li>
+        <li class="list-group-item"><i class="bi bi-calendar3 me-2"></i>عمر العقار: {{ property.age }} سنة</li>
+        <li class="list-group-item"><i class="bi bi-aspect-ratio-fill me-2"></i>المساحة: {{ property.area }} م²</li>
+        <li class="list-group-item"><i class="bi bi-house-fill me-2"></i>نوع العرض: {{ property.get_offer_type_display }}</li>
+        <li class="list-group-item"><i class="bi bi-telephone-fill me-2"></i>رقم التواصل: {{ property.phone }}</li>
+        {% if property.license_number %}
+          <li class="list-group-item"><i class="bi bi-card-checklist me-2"></i>رقم الترخيص: {{ property.license_number }}</li>
+        {% endif %}
+      </ul>
+
+      <!-- 📝 وصف العقار -->
+      <div class="mb-4">
+        <p class="fw-bold">الوصف:</p>
+        <div class="bg-light p-3 rounded-3 border text-muted shadow-sm" style="white-space: pre-wrap;">
+          {{ property.description|linebreaks }}
+        </div>
+      </div>
+
+      <!-- 🔐 عمليات الحجز والتنفيذ -->
+      {% if user.is_authenticated %}
+        <div class="d-flex flex-column gap-2 mb-3">
+          {% if property.reserved_by == user %}
+            <a href="{% url 'cancel_property_reservation' property.id %}" class="btn btn-outline-danger">❌ إلغاء الحجز</a>
+          {% elif not property.reserved_by %}
+            <a href="{% url 'reserve_property' property.id %}" class="btn btn-warning">📥 حجز</a>
+          {% endif %}
+
+          {% if property.executed_by == user %}
+            <a href="{% url 'cancel_property_execution' property.id %}" class="btn btn-outline-danger">❌ إلغاء التنفيذ</a>
+          {% elif not property.executed_by %}
+            <a href="{% url 'execute_property' property.id %}" class="btn btn-success">✅ تم التنفيذ</a>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <!-- ☎️ الاتصال -->
+      <a href="tel:{{ property.phone }}" class="btn btn-success btn-lg w-100 mb-2 shadow-sm">
+        📞 اتصل الآن
+      </a>
+
+      <!-- 💬 واتساب -->
+      <a href="https://wa.me/966{{ property.phone|slice:'1:' }}?text={{ whatsapp_message }}" target="_blank" class="btn btn-outline-success w-100">
+        تواصل عبر واتساب 📱
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'core/base.html' %}
+
+{% block title %}لوحة تحكم الوسيط{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4 p-4 mb-5">
+        <h2 class="text-center text-primary mb-4">مرحبًا {{ user.username }}</h2>
+
+        <!-- ✅ إحصائيات المستخدم -->
+        <div class="row g-3 justify-content-center mb-4">
+            <div class="col-md-4">
+                <div class="card border-success shadow-sm rounded-3 text-center">
+                    <div class="card-body">
+                        <h6 class="text-muted">عدد عقاراتي</h6>
+                        <h3 class="text-success fw-bold">{{ my_property_count }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-primary shadow-sm rounded-3 text-center">
+                    <div class="card-body">
+                        <h6 class="text-muted">عدد الطلبات المنفذة</h6>
+                        <h3 class="text-primary fw-bold">{{ executed_count }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-warning shadow-sm rounded-3 text-center">
+                    <div class="card-body">
+                        <h6 class="text-muted">عدد الطلبات المحجوزة</h6>
+                        <h3 class="text-warning fw-bold">{{ reserved_count }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <div class="col">
+                <a href="{% url 'my_properties' %}" class="card text-center h-100 shadow-sm border-0 hover-shadow text-decoration-none text-dark">
+                    <div class="card-body">
+                        <h5 class="card-title">📋 عرض عقاراتي</h5>
+                        <p class="card-text text-muted">تصفح وإدارة العقارات الخاصة بك</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="{% url 'add_property' %}" class="card text-center h-100 shadow-sm border-0 hover-shadow text-decoration-none text-dark">
+                    <div class="card-body">
+                        <h5 class="card-title">➕ إضافة عقار جديد</h5>
+                        <p class="card-text text-muted">قم بإدراج عقار جديد الآن</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="{% url 'my_executed_requests' %}" class="card text-center h-100 shadow-sm border-0 hover-shadow text-decoration-none text-dark">
+                    <div class="card-body">
+                        <h5 class="card-title">📄 طلباتي المنفذة</h5>
+                        <p class="card-text text-muted">عرض الطلبات العقارية التي نفذتها</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="#" class="card text-center h-100 shadow-sm border-0 hover-shadow text-decoration-none text-dark">
+                    <div class="card-body">
+                        <h5 class="card-title">🔒 تغيير كلمة المرور</h5>
+                        <p class="card-text text-muted">تحديث كلمة المرور الخاصة بك</p>
+                    </div>
+                </a>
+            </div>
+
+            {% if user.user_type == 'admin' %}
+            <div class="col">
+                <a href="#" class="card text-center h-100 shadow-sm border-warning hover-shadow border-1 text-decoration-none text-dark">
+                    <div class="card-body">
+                        <h5 class="card-title">👤 تسجيل وسيط جديد</h5>
+                        <p class="card-text text-muted">إضافة حساب وسيط جديد</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="{% url 'admin_agents' %}" class="card text-center h-100 shadow-sm border-0 hover-shadow text-decoration-none text-dark">
+                    <div class="card-body">
+                        <h5 class="card-title">👥 إدارة الوسطاء</h5>
+                        <p class="card-text text-muted">إشراف وتعديل حسابات الوسطاء</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="{% url 'admin_all_requests' %}" class="card text-center h-100 shadow-sm border-0 hover-shadow text-decoration-none text-dark">
+                    <div class="card-body">
+                        <h5 class="card-title">📋 جميع الطلبات</h5>
+                        <p class="card-text text-muted">إدارة جميع الطلبات العقارية</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="{% url 'admin_dashboard' %}" class="card text-center h-100 shadow-sm border-0 hover-shadow text-decoration-none text-dark">
+                    <div class="card-body">
+                        <h5 class="card-title">📊 لوحة الإحصائيات</h5>
+                        <p class="card-text text-muted">عرض وتحليل بيانات النظام</p>
+                    </div>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

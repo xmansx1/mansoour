@@ -1,0 +1,57 @@
+{% extends 'core/base.html' %}
+{% block title %}طلبات العملاء{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header text-center bg-primary text-white fw-bold">
+            طلبات العملاء 🗂️
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-bordered table-striped table-hover text-center mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>الاسم</th>
+                        <th>رقم الجوال</th>
+                        <th>المدينة</th>
+                        <th>الحي</th>
+                        <th>نوع الطلب</th>
+                        <th>نوع العقار</th>
+                        <th>السعر الأعلى</th>
+                        <th>الحالة / إجراء</th>
+                        <th>تفاصيل</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in requests %}
+                    <tr>
+                        <td>{{ req.name }}</td>
+                        <td>{{ req.phone }}</td>
+                        <td>{{ req.city }}</td>
+                        <td>{{ req.district }}</td>
+                        <td>{{ req.get_request_type_display }}</td>
+                        <td>{{ req.get_property_type_display }}</td>
+                        <td>{{ req.max_price|floatformat:2 }} ريال</td>
+                        <td>
+                            {% if req.is_processed %}
+                                <span class="badge bg-success">تم التنفيذ</span><br>
+                                <small>بواسطة: {{ req.processed_by }}</small>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">لم يتم</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'request_detail' req.id %}" class="btn btn-outline-primary btn-sm">رؤية التفاصيل</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-muted text-center">لا توجد طلبات حالياً.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'core/base.html' %}
+{% block title %}كل الطلبات - الإدارة{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm p-4">
+    <h3 class="mb-4 text-center text-primary">📋 جميع الطلبات</h3>
+
+    <!-- 🔍 نموذج البحث والتصفية -->
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <input type="text" name="city" class="form-control" placeholder="🔍 ابحث بالمدينة..." value="{{ request.GET.city }}">
+        </div>
+        <div class="col-md-4">
+            <select name="status" class="form-select">
+                <option value="">📋 كل الحالات</option>
+                <option value="open" {% if request.GET.status == 'open' %}selected{% endif %}>🕓 مفتوح</option>
+                <option value="executed" {% if request.GET.status == 'executed' %}selected{% endif %}>✅ تم التنفيذ</option>
+            </select>
+        </div>
+        <div class="col-md-4 text-end">
+            <button type="submit" class="btn btn-primary w-100">تصفية</button>
+        </div>
+    </form>
+
+    {% if requests %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>العميل</th>
+                    <th>نوع الطلب</th>
+                    <th>نوع العقار</th>
+                    <th>المدينة</th>
+                    <th>الحالة</th>
+                    <th>الوسيط المنفذ</th>
+                    <th>تاريخ التنفيذ</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in requests %}
+                <tr class="{% if r.status == 'open' %}status-open{% elif r.status == 'reserved' %}status-reserved{% elif r.status == 'executed' %}status-executed{% endif %}">
+                    <td>{{ r.full_name }}</td>
+                    <td>{{ r.get_request_type_display }}</td>
+                    <td>{{ r.get_property_type_display }}</td>
+                    <td>{{ r.city }}</td>
+                    <td>
+                        {% if r.status == 'executed' %}
+                            <span class="badge bg-success">✅ تم التنفيذ</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">🕓 مفتوح</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if r.execution %}
+                            {{ r.execution.agent.username }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if r.execution %}
+                            {{ r.execution.executed_at|date:"Y-m-d H:i" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex justify-content-center gap-1">
+                            <a href="{% url 'request_detail' r.id %}" class="btn btn-sm btn-outline-info hover-btn">👁️</a>
+                            <a href="{% url 'admin_edit_request' r.id %}" class="btn btn-sm btn-outline-primary hover-btn">✏️</a>
+                            <a href="{% url 'admin_delete_request' r.id %}" class="btn btn-sm btn-outline-danger hover-btn">🗑️</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted text-center">لا توجد طلبات مطابقة.</p>
+    {% endif %}
+</div>
+{% endblock %}
