@@ -17,7 +17,9 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from core.models import Property  # تأكد من وجود هذا السطر
 from core.models import CustomerRequest, Execution
+from django.views.decorators.csrf import csrf_exempt
 
+import cloudinary.uploader
 
 # ===================================================
 # 📍 الصفحات العامة
@@ -222,40 +224,57 @@ def my_properties_view(request):
     properties = Property.objects.filter(owner=request.user).order_by('-created_at')
     return render(request, 'core/my_properties.html', {'properties': properties})
 
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib import messages
 from .models import Property, PropertyImage
 from .forms import PropertyForm
 
 @login_required
-def edit_property_view(request, pk):
-    # ✅ السماح للمشرف أو للمالك فقط
-    if request.user.is_staff:
-        property = get_object_or_404(Property, pk=pk)
-    else:
-        property = get_object_or_404(Property, pk=pk, owner=request.user)
+def edit_property(request, property_id):
+    property_obj = get_object_or_404(Property, id=property_id)
 
     if request.method == 'POST':
-        form = PropertyForm(request.POST, request.FILES, instance=property)
+        form = PropertyForm(request.POST, request.FILES, instance=property_obj)
         if form.is_valid():
             form.save()
 
-            images = request.FILES.getlist('images')
-            for image in images:
-                PropertyImage.objects.create(property=property, image=image)
+            # ✅ حفظ الصور الجديدة المرفوعة
+            for img in request.FILES.getlist('images'):
+                PropertyImage.objects.create(property=property_obj, image=img)
 
-            messages.success(request, '✅ تم تعديل العقار بنجاح.')
-            return redirect('my_properties')  # عدّل حسب السياق
+            # ✅ عرض رسالة نجاح
+            messages.success(request, "✅ تم حفظ التعديلات بنجاح.")
+
+            # ✅ توجيه الجميع (المستخدم أو الآدمن) لنفس صفحة التعديل
+            return redirect('edit_property', property_id=property_id)
     else:
-        form = PropertyForm(instance=property)
+        form = PropertyForm(instance=property_obj)
 
     return render(request, 'core/edit_property.html', {
         'form': form,
-        'property': property,
+        'property': property_obj,
     })
 
 
+
+
+
+
+from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
+from core.models import Property
+
+# إنشاء مجموعة جديدة
+agents_group, created = Group.objects.get_or_create(name="الوكلاء")
+
+# إضافة صلاحية معينة
+content_type = ContentType.objects.get_for_model(Property)
+permission = Permission.objects.get(
+    codename='change_property',
+    content_type=content_type,
+)
+agents_group.permissions.add(permission)
 
 
 @login_required
@@ -509,21 +528,68 @@ def cancel_property_execution(request, pk):
     return redirect('property_detail', pk=pk)
 
 # views.py
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect
-from .models import PropertyImage
+from cloudinary.uploader import destroy  # ✅ استيراد الحذف الصحيح من Cloudinary
 
 @login_required
+@csrf_exempt
 def delete_property_image(request, image_id):
-    image = get_object_or_404(PropertyImage, id=image_id)
+    if request.method == 'POST':
+        try:
+            image = PropertyImage.objects.get(id=image_id)
 
-    # تحقق اختياري: فقط المالك أو مشرف له حق الحذف
-    user = request.user
-    if not (user == image.property.owner or user.is_staff):
-        return redirect('unauthorized_access')  # أو أي صفحة تنبيه
+            if image.property.owner == request.user or request.user.is_staff:
+                # ✅ حذف الصورة من Cloudinary باستخدام public_id
+                if image.image:
+                    public_id = image.image.public_id
+                    destroy(public_id)
 
-    property_id = image.property.id
-    image.delete()
-    return redirect('edit_property', pk=property_id)  # أو admin_edit_property حسب السياق
+                # حذف من قاعدة البيانات فقط
+                image.delete()
+                return JsonResponse({'success': True})
 
+            return JsonResponse({'error': 'غير مصرح لك بالحذف'}, status=403)
+        except PropertyImage.DoesNotExist:
+            return JsonResponse({'error': 'الصورة غير موجودة'}, status=404)
+
+    return JsonResponse({'error': 'طلب غير صالح'}, status=400)
+
+
+import cloudinary.uploader  # تأكد من وجود هذا السطر
+
+@csrf_exempt
+def delete_property_image_ajax(request, image_id):
+    if request.method == "POST":
+        try:
+            image = PropertyImage.objects.get(id=image_id)
+
+            # حذف الصورة من Cloudinary
+            public_id = image.image.public_id
+            cloudinary.uploader.destroy(public_id)
+
+            # حذف من قاعدة البيانات
+            image.delete()
+
+            return JsonResponse({"success": True})
+        except PropertyImage.DoesNotExist:
+            return JsonResponse({"error": "الصورة غير موجودة"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "الطريقة غير مدعومة"}, status=405)
+
+
+
+
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from .models import Property, PropertyImage
+
+@csrf_exempt
+@login_required
+def upload_property_image(request, property_id):
+    if request.method == 'POST' and request.FILES.get('image'):
+        property_obj = Property.objects.get(id=property_id, owner=request.user)
+        image = request.FILES['image']
+        PropertyImage.objects.create(property=property_obj, image=image)
+        return JsonResponse({'message': 'تم رفع الصورة بنجاح'})
+    return JsonResponse({'error': 'طلب غير صالح'}, status=400)

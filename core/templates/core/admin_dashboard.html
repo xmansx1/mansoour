@@ -140,7 +140,7 @@
                     </td>
                     <td>
                         <a href="{% url 'property_detail' property.id %}" class="btn btn-sm btn-outline-info mb-1 hover-btn">👁️ عرض</a>
-                        <a href="{% url 'admin_edit_property' property.id %}" class="btn btn-sm btn-outline-secondary mb-1 hover-btn">✏️ تعديل</a>
+                        <a href="{% url 'edit_property' property.id %}" class="btn btn-sm btn-outline-secondary mb-1 hover-btn">✏️ تعديل</a>
                         <button class="btn btn-sm btn-danger mb-1 hover-btn" data-bs-toggle="modal" data-bs-target="#deleteModal{{ property.id }}">🗑️ حذف</button>
 
                         <!-- المودال -->

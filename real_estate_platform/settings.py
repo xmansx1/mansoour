@@ -98,7 +98,9 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'ar'
 TIME_ZONE = 'Asia/Riyadh'
 USE_I18N = True
+USE_L10N = True
 USE_TZ = True
+
 
 # نموذج المستخدم
 AUTH_USER_MODEL = 'core.CustomUser'
@@ -124,3 +126,7 @@ LOGOUT_REDIRECT_URL = '/'
 # نوع المفتاح الأساسي الافتراضي
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+print("CLOUD_NAME =", os.getenv('CLOUD_NAME'))
+print("API_KEY =", os.getenv('API_KEY'))
+print("API_SECRET =", os.getenv('API_SECRET'))

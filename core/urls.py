@@ -2,6 +2,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 from . import views
+from .views import delete_property_image_ajax
+from .views import upload_property_image
+
 
 urlpatterns = [
     # 🏠 صفحات عامة
@@ -17,18 +20,21 @@ urlpatterns = [
     path('property/<int:pk>/cancel-reservation/', views.cancel_property_reservation, name='cancel_property_reservation'),
     path('property/<int:pk>/execute/', views.execute_property, name='execute_property'),
     path('property/<int:pk>/cancel-execution/', views.cancel_property_execution, name='cancel_property_execution'),
+    path('delete-image/<int:image_id>/', delete_property_image_ajax, name='delete_property_image_ajax'),
 
     # 🔐 تسجيل الدخول والخروج والتسجيل
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('register/', views.register_view, name='register'),
     path('delete-image/<int:image_id>/', views.delete_property_image, name='delete_property_image'),
+    path('upload-image/<int:property_id>/', upload_property_image, name='upload_property_image'),
 
     # 🧑‍💼 لوحة تحكم الوسيط
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('dashboard/add-property/', views.add_property_view, name='add_property'),
     path('dashboard/my-properties/', views.my_properties_view, name='my_properties'),
-    path('dashboard/my-properties/<int:pk>/edit/', views.edit_property_view, name='edit_property'),
+    path('dashboard/my-properties/<int:property_id>/edit/', views.edit_property, name='edit_property'),
+
     path('dashboard/my-properties/<int:pk>/delete/', views.delete_property_view, name='delete_property'),
     path('dashboard/my-requests/', views.my_executed_requests_view, name='my_executed_requests'),
     path('requests/<int:request_id>/reserve/', views.reserve_customer_request, name='reserve_request'),

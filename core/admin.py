@@ -36,3 +36,12 @@ admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Property, PropertyAdmin)
 admin.site.register(CustomerRequest, CustomerRequestAdmin)
 admin.site.register(Execution, ExecutionAdmin)
+
+
+from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
+
+# تخصيص عنوان الصفحة
+admin.site.site_header = "لوحة تحكم منصور 🏠"
+admin.site.site_title = "إدارة المنصة"
+admin.site.index_title = "مرحبًا بك في لوحة التحكم"

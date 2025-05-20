@@ -1,116 +1,170 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block title %}تعديل بيانات العقار{% endblock %}
 
 {% block content %}
 <div class="container py-4">
-    <div class="col-lg-10 offset-lg-1">
-        <div class="card shadow-lg border-0 rounded-4 p-4">
-            <h4 class="mb-4 text-center text-warning">✏️ تعديل بيانات العقار</h4>
+  <div class="col-lg-10 offset-lg-1">
+    <div class="card shadow-lg border-0 rounded-4 p-4">
+      <h4 class="mb-4 text-center text-warning">✏️ تعديل بيانات العقار</h4>
 
-            <!-- عرض رسائل الخطأ -->
-            {% if form.errors %}
-            <div class="alert alert-danger">
-                <ul class="mb-0">
-                    {% for field in form %}
-                        {% for error in field.errors %}
-                            <li><strong>{{ field.label }}:</strong> {{ error }}</li>
-                        {% endfor %}
-                    {% endfor %}
-                    {% for error in form.non_field_errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
+      {# ✅ إشعارات النجاح #}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-success text-center fade show" role="alert" id="success-message">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
 
-            <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="row g-3">
+      {# ⚠️ عرض الأخطاء #}
+      {% if form.errors %}
+      <div class="alert alert-danger">
+        <ul class="mb-0">
+          {% for field in form %}
+            {% for error in field.errors %}
+              <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+            {% endfor %}
+          {% endfor %}
+          {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
 
-                    <div class="col-md-6">
-                        <label class="form-label">نوع العقار</label>
-                        {{ form.property_type }}
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">نوع العرض</label>
-                        {{ form.offer_type }}
-                    </div>
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
 
-                    <div class="col-md-6">
-                        <label class="form-label">عمر العقار</label>
-                        {{ form.age }}
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">السعر</label>
-                        {{ form.price }}
-                    </div>
+          <div class="col-md-6">
+            <label class="form-label">نوع العقار</label>
+            {{ form.property_type }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">نوع العرض</label>
+            {{ form.offer_type }}
+          </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label">المدينة</label>
-                        {{ form.city }}
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">الحي</label>
-                        {{ form.district }}
-                    </div>
+          <div class="col-md-6">
+            <label class="form-label">عمر العقار</label>
+            {{ form.age }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">السعر</label>
+            {{ form.price }}
+          </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label">رقم الجوال</label>
-                        {{ form.phone }}
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">رقم الترخيص</label>
-                        {{ form.license_number }}
-                    </div>
+          <div class="col-md-6">
+            <label class="form-label">المدينة</label>
+            {{ form.city }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">الحي</label>
+            {{ form.district }}
+          </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label">خط العرض</label>
-                        {{ form.latitude }}
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">خط الطول</label>
-                        {{ form.longitude }}
-                    </div>
+          <div class="col-md-6">
+            <label class="form-label">رقم الجوال</label>
+            {{ form.phone }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">رقم الترخيص</label>
+            {{ form.license_number }}
+          </div>
 
-                    <div class="col-12">
-                        <label class="form-label">الوصف</label>
-                        {{ form.description }}
-                    </div>
+          <div class="col-md-6">
+            <label class="form-label">خط العرض</label>
+            {{ form.latitude }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">خط الطول</label>
+            {{ form.longitude }}
+          </div>
 
-                    <div class="col-12">
-                        <label class="form-label">📁 صور العقار (يمكن رفع عدة صور)</label>
-                        <input type="file" name="images" class="form-control" multiple>
-                    </div>
+          <div class="col-12">
+            <label class="form-label">الوصف</label>
+            {{ form.description }}
+          </div>
 
-                    {% if property.images.all %}
-                    <div class="col-12 mt-4">
-                        <label class="form-label">📸 الصور الحالية:</label>
-                        <div class="row row-cols-1 row-cols-md-3 g-3">
-                            {% for img in property.images.all %}
-                            <div class="col">
-                                <div class="card h-100 border rounded-3 shadow-sm position-relative">
-                                    <img src="{{ img.image.url }}" class="card-img-top" alt="صورة العقار">
-                                    <div class="p-2">
-                                        <a href="{% url 'delete_property_image' img.id %}" 
-                                           class="btn btn-sm btn-outline-danger w-100 mt-2"
-                                           onclick="return confirm('هل أنت متأكد أنك تريد حذف هذه الصورة؟');">
-                                            🗑️ حذف الصورة
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
+          <div class="col-12">
+            <label class="form-label">📁 صور العقار (يمكن رفع عدة صور)</label>
+            <input type="file" name="images" class="form-control" multiple>
+          </div>
+
+          {% if property.images.all %}
+          <div class="col-12 mt-4">
+            <label class="form-label">📸 الصور الحالية:</label>
+            <div class="row row-cols-1 row-cols-md-3 g-3">
+              {% for img in property.images.all %}
+              <div class="col">
+                <div class="card h-100 border rounded-3 shadow-sm position-relative">
+                  <img src="{{ img.image.url }}" class="card-img-top" alt="صورة العقار">
+                  <div class="p-2">
+                    <a href="#" class="btn btn-sm btn-outline-danger w-100 mt-2"
+                       onclick="deleteImage({{ img.id }}, this); return false;">
+                      🗑️ حذف الصورة
+                    </a>
+                  </div>
                 </div>
-
-                <button type="submit" class="btn btn-success w-100 mt-4 fs-5">
-                    💾 حفظ التعديلات
-                </button>
-            </form>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
         </div>
+
+        <button type="submit" class="btn btn-success w-100 mt-4 fs-5">
+          💾 حفظ التعديلات
+        </button>
+      </form>
     </div>
+  </div>
 </div>
+
+<script>
+// ✅ حذف الصورة باستخدام AJAX
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+function deleteImage(imageId, el) {
+  if (!confirm("هل أنت متأكد أنك تريد حذف هذه الصورة؟")) return;
+  fetch(`/delete-image/${imageId}/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCookie('csrftoken'),
+    },
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      el.closest('.col').remove();
+    } else {
+      alert(data.error || 'حدث خطأ غير متوقع');
+    }
+  })
+  .catch(() => alert("تعذر الاتصال بالخادم"));
+}
+
+// ✅ إخفاء رسالة النجاح تلقائياً
+document.addEventListener("DOMContentLoaded", () => {
+  const msg = document.getElementById("success-message");
+  if (msg) {
+    setTimeout(() => msg.remove(), 4000);
+  }
+});
+</script>
 {% endblock %}

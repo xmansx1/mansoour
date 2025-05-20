@@ -37,11 +37,12 @@
         <div id="map" class="rounded border shadow-sm mb-3" style="height: 400px;"></div>
 
         <!-- 🌐 زر Google Maps -->
-        <a href="https://www.google.com/maps?q={{ property.latitude|floatformat:6|stringformat:'s'|cut:',' }}%2C{{ property.longitude|floatformat:6|stringformat:'s'|cut:',' }}"
+        <a href="https://www.google.com/maps?q={{ property.latitude|stringformat:'.6f' }},{{ property.longitude|stringformat:'.6f' }}" 
            target="_blank"
            class="btn btn-outline-primary btn-sm w-100 shadow-sm">
-          🌐 عرض الموقع على Google Maps
+           🌐 عرض الموقع على Google Maps
         </a>
+
       </div>
 
       <!-- Leaflet JS -->
